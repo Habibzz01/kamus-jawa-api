@@ -107,7 +107,7 @@ export default function Test() {
     <div className="container" style={{ paddingTop: 44 }}>
       <AnimatedContent>
         <h1 style={{ marginTop: 0 }}>API Tester</h1>
-        <p style={{ color: "var(--text-2)" }}>
+        <p style={{ color: "var(--body)" }}>
           Pilih endpoint, isi parameter, lalu kirim. Respons ditampilkan langsung — tanpa perlu curl.
         </p>
       </AnimatedContent>
@@ -122,16 +122,16 @@ export default function Test() {
               style={{
                 display: "block", width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 8,
                 padding: "11px 14px", borderRadius: 12, border: "1px solid",
-                borderColor: selected.id === ep.id ? "var(--gold)" : "var(--line-soft)",
-                background: selected.id === ep.id ? "rgba(227,179,100,0.10)" : "var(--card)",
-                color: "var(--text)",
+                borderColor: selected.id === ep.id ? "var(--primary)" : "var(--hairline)",
+                background: selected.id === ep.id ? "var(--surface-strong)" : "var(--surface-card)",
+                color: "var(--ink)",
               }}
             >
               <div style={{ fontSize: "0.82rem", display: "flex", gap: 8, alignItems: "center" }}>
                 <span className={`m-${ep.method.toLowerCase()}`} style={{ fontWeight: 700 }}>{ep.method}</span>
                 <code style={{ fontSize: "0.78rem", padding: "2px 6px" }}>{ep.path}</code>
               </div>
-              <div style={{ fontSize: "0.82rem", color: "var(--text-2)", marginTop: 3 }}>{ep.title}</div>
+              <div style={{ fontSize: "0.82rem", color: "var(--body)", marginTop: 3 }}>{ep.title}</div>
             </button>
           ))}
         </div>
@@ -142,21 +142,21 @@ export default function Test() {
             <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
               <span className="badge badge-green m-get" style={{ textTransform: "none", fontSize: "0.85rem" }}>{selected.method}</span>
               <code style={{ fontSize: "1rem" }}>{selected.path}</code>
-              <span style={{ color: "var(--text-3)", fontSize: "0.88rem" }}>— {selected.desc}</span>
+              <span style={{ color: "var(--muted)", fontSize: "0.88rem" }}>— {selected.desc}</span>
             </div>
 
             {activeParams.length > 0 && (
               <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
                 {activeParams.map((p) => (
                   <label key={p.name} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    <span style={{ fontSize: "0.78rem", color: "var(--text-3)" }}>
+                    <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
                       <code>{p.name}</code> {p.desc && <span style={{ opacity: 0.7 }}>· {p.desc}</span>}
                     </span>
                     <input
                       value={values[p.name] ?? ""}
                       placeholder={p.placeholder || ""}
                       onChange={(e) => setValues((v) => ({ ...v, [p.name]: e.target.value }))}
-                      style={{ padding: "9px 12px", borderRadius: 10, border: "1px solid var(--line)", background: "var(--bg)", color: "var(--text)", outline: "none" }}
+                      style={{ padding: "9px 12px", borderRadius: 10, border: "1px solid var(--hairline-strong)", background: "var(--canvas)", color: "var(--ink)", outline: "none" }}
                     />
                   </label>
                 ))}
@@ -185,7 +185,7 @@ export default function Test() {
             ) : result ? (
               <pre style={{ maxHeight: "46vh", margin: 0 }}>{result.body}</pre>
             ) : (
-              <p style={{ color: "var(--text-3)", margin: 0, fontSize: "0.92rem" }}>Belum ada request. Klik "Kirim Request".</p>
+              <p style={{ color: "var(--muted)", margin: 0, fontSize: "0.92rem" }}>Belum ada request. Klik "Kirim Request".</p>
             )}
           </div>
 
@@ -198,11 +198,11 @@ export default function Test() {
                   <button
                     key={i}
                     onClick={() => setResult({ status: h.status, ms: h.ms, body: h.body })}
-                    style={{ textAlign: "left", cursor: "pointer", background: "var(--bg)", border: "1px solid var(--line-soft)", borderRadius: 10, padding: "8px 12px", color: "var(--text)", display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}
+                    style={{ textAlign: "left", cursor: "pointer", background: "var(--canvas)", border: "1px solid var(--hairline)", borderRadius: 10, padding: "8px 12px", color: "var(--ink)", display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}
                   >
                     <span className={`badge ${h.status < 300 ? "badge-green" : "badge-gold"}`} style={{ textTransform: "none" }}>{h.status || "ERR"}</span>
                     <code style={{ fontSize: "0.8rem" }}>{h.label}</code>
-                    <span style={{ color: "var(--text-3)", fontSize: "0.78rem" }}>{h.ms} ms · {h.time}</span>
+                    <span style={{ color: "var(--muted)", fontSize: "0.78rem" }}>{h.ms} ms · {h.time}</span>
                   </button>
                 ))}
               </div>
@@ -212,7 +212,7 @@ export default function Test() {
       </div>
 
       <FadeUp>
-        <p style={{ color: "var(--text-3)", fontSize: "0.85rem", marginTop: 22 }}>
+        <p style={{ color: "var(--muted)", fontSize: "0.85rem", marginTop: 22 }}>
           Tip: buka halaman ini di <b>mode responsif</b> — layout menyesuaikan untuk ponsel. Semua request memakai base URL situs saat ini.
         </p>
       </FadeUp>

@@ -31,7 +31,7 @@ export default function Explore() {
     <div className="container" style={{ paddingTop: 44 }}>
       <AnimatedContent>
         <h1 style={{ marginTop: 0 }}>Jelajah Kata</h1>
-        <p style={{ color: "var(--text-2)", marginTop: -6 }}>Telusuri entri kamus per huruf. Data dimuat langsung dari <code>/api/entries</code>.</p>
+        <p style={{ color: "var(--body)", marginTop: -6 }}>Telusuri entri kamus per huruf. Data dimuat langsung dari <code>/api/entries</code>.</p>
       </AnimatedContent>
 
       {/* Letter picker */}
@@ -41,10 +41,10 @@ export default function Explore() {
             key={l}
             onClick={() => setLetter(l)}
             style={{
-              width: 40, height: 40, borderRadius: 12, cursor: "pointer", fontFamily: "var(--serif)", fontWeight: 600, fontSize: 18,
-              border: letter === l ? "1px solid var(--gold)" : "1px solid var(--line-soft)",
-              background: letter === l ? "rgba(227,179,100,0.14)" : "var(--card)",
-              color: letter === l ? "var(--gold-2)" : "var(--text-2)",
+              width: 40, height: 40, borderRadius: 12, cursor: "pointer", fontFamily: "var(--sans)", fontWeight: 600, fontSize: 18,
+              border: letter === l ? "1px solid var(--primary)" : "1px solid var(--hairline)",
+              background: letter === l ? "var(--surface-strong)" : "var(--surface-card)",
+              color: letter === l ? "var(--ink)" : "var(--body)",
             }}
           >
             {l.toUpperCase()}
@@ -58,7 +58,7 @@ export default function Explore() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={`Cari dalam huruf ${letter.toUpperCase()}…`}
-          style={{ flex: 1, maxWidth: 420, padding: "11px 16px", borderRadius: 999, border: "1px solid var(--line)", background: "var(--card)", color: "var(--text)", outline: "none" }}
+          style={{ flex: 1, maxWidth: 420, padding: "11px 16px", borderRadius: 999, border: "1px solid var(--hairline-strong)", background: "var(--surface-card)", color: "var(--ink)", outline: "none" }}
         />
         <span className="badge badge-gold" style={{ alignSelf: "center" }}>
           {meta?.total ?? "…"} entri
@@ -66,7 +66,7 @@ export default function Explore() {
       </div>
 
       {loading ? (
-        <p style={{ color: "var(--text-3)" }}>Memuat…</p>
+        <p style={{ color: "var(--muted)" }}>Memuat…</p>
       ) : (
         <>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12 }}>
@@ -74,10 +74,10 @@ export default function Explore() {
               <FadeUp key={e.id} delay={Math.min(i, 8) * 0.04}>
                 <div className="card" style={{ padding: "16px 18px" }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
-                    <b style={{ fontFamily: "var(--serif)", fontSize: "1.1rem", color: "var(--gold-2)" }}>{e.word}</b>
+                    <b style={{ fontFamily: "var(--sans)", fontSize: "1.1rem", color: "var(--ink)" }}>{e.word}</b>
                     <span className="badge badge-muted">{e.level}</span>
                   </div>
-                  <div style={{ color: "var(--text-2)", fontSize: "0.9rem", marginTop: 4 }}>{e.meaning}</div>
+                  <div style={{ color: "var(--body)", fontSize: "0.9rem", marginTop: 4 }}>{e.meaning}</div>
                   {(e.krama || e.krama_inggil) && (
                     <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
                       {e.krama && <span className="badge badge-green">krama: {e.krama}</span>}
@@ -92,7 +92,7 @@ export default function Explore() {
           {meta && meta.pages > 1 && (
             <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 26 }}>
               <button className="btn" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>← Sebelumnya</button>
-              <span style={{ alignSelf: "center", color: "var(--text-2)", fontSize: "0.9rem" }}>
+              <span style={{ alignSelf: "center", color: "var(--body)", fontSize: "0.9rem" }}>
                 Halaman {page} / {meta.pages}
               </span>
               <button className="btn" disabled={page >= meta.pages} onClick={() => setPage((p) => Math.min(meta.pages, p + 1))}>Berikutnya →</button>

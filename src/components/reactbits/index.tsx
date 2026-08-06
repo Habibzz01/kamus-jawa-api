@@ -75,15 +75,7 @@ export function SplitText({
 /* ---------- GradientText ---------- */
 export function GradientText({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <span
-      className={className}
-      style={{
-        background: "linear-gradient(120deg, #f2cd8a 0%, #e3b364 35%, #a86f2c 70%, #f2cd8a 100%)",
-        WebkitBackgroundClip: "text",
-        backgroundClip: "text",
-        color: "transparent",
-      }}
-    >
+    <span className={className} style={{ color: "var(--ink)" }}>
       {children}
     </span>
   );
@@ -163,7 +155,7 @@ export function SpotlightCard({ children, className, style }: { children: ReactN
           position: "absolute",
           inset: 0,
           pointerEvents: "none",
-          background: `radial-gradient(420px circle at ${pos.x}px ${pos.y}px, rgba(227,179,100,0.10), transparent 65%)`,
+          background: `radial-gradient(420px circle at ${pos.x}px ${pos.y}px, rgba(13,116,206,0.05), transparent 65%)`,
           opacity: 1,
           transition: "background 0.15s ease",
         }}

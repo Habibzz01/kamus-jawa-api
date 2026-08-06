@@ -160,8 +160,8 @@ export default function Docs() {
     <div className="container" style={{ paddingTop: 44 }}>
       <AnimatedContent>
         <h1 style={{ marginTop: 0 }}>Dokumentasi API</h1>
-        <p style={{ color: "var(--text-2)", maxWidth: 720 }}>
-          Seluruh endpoint menggunakan <b style={{ color: "var(--text)" }}>GET</b> dan mengembalikan JSON.
+        <p style={{ color: "var(--body)", maxWidth: 720 }}>
+          Seluruh endpoint menggunakan <b style={{ color: "var(--ink)" }}>GET</b> dan mengembalikan JSON.
           Respons selalu berbentuk <code>{"{ ok, data, ... }"}</code>; kesalahan berbentuk{" "}
           <code>{"{ ok: false, error: { status, message } }"}</code>.
           CORS diaktifkan (<code>Access-Control-Allow-Origin: *</code>), sehingga bisa dipanggil dari
@@ -188,7 +188,7 @@ export default function Docs() {
 
       {/* Daftar endpoint */}
       <h2 style={{ marginTop: 46 }}>Daftar Endpoint</h2>
-      <p style={{ color: "var(--text-2)", marginTop: -6 }}>
+      <p style={{ color: "var(--body)", marginTop: -6 }}>
         Klik salah satu untuk menyalin contohnya. Ganti <code>&lt;domain&gt;</code> dengan URL Vercel kamu.
       </p>
 
@@ -201,30 +201,30 @@ export default function Docs() {
                   {ep.method}
                 </span>
                 <code style={{ fontSize: "0.95rem", padding: "5px 10px" }}>{ep.path}</code>
-                <b style={{ fontSize: "1.05rem", fontFamily: "var(--serif)" }}>{ep.title}</b>
+                <b style={{ fontSize: "1.05rem", fontFamily: "var(--sans)" }}>{ep.title}</b>
               </div>
-              <p style={{ color: "var(--text-2)", margin: "10px 0 4px" }}>{ep.desc}</p>
-              {ep.note && <p style={{ color: "var(--text-3)", fontSize: "0.86rem", margin: "4px 0" }}>ℹ️ {ep.note}</p>}
+              <p style={{ color: "var(--body)", margin: "10px 0 4px" }}>{ep.desc}</p>
+              {ep.note && <p style={{ color: "var(--muted)", fontSize: "0.86rem", margin: "4px 0" }}>ℹ️ {ep.note}</p>}
               {ep.params && (
                 <div style={{ marginTop: 10 }}>
-                  <div style={{ fontSize: "0.8rem", color: "var(--text-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Parameter Query</div>
+                  <div style={{ fontSize: "0.8rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Parameter Query</div>
                   <div style={{ overflowX: "auto" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
                       <thead>
                         <tr>
-                          <th style={{ textAlign: "left", padding: "6px 10px", borderBottom: "1px solid var(--line)", color: "var(--gold-2)" }}>Nama</th>
-                          <th style={{ textAlign: "left", padding: "6px 10px", borderBottom: "1px solid var(--line)", color: "var(--gold-2)" }}>Tipe</th>
-                          <th style={{ textAlign: "left", padding: "6px 10px", borderBottom: "1px solid var(--line)", color: "var(--gold-2)" }}>Deskripsi</th>
+                          <th style={{ textAlign: "left", padding: "6px 10px", borderBottom: "1px solid var(--hairline-strong)", color: "var(--ink)" }}>Nama</th>
+                          <th style={{ textAlign: "left", padding: "6px 10px", borderBottom: "1px solid var(--hairline-strong)", color: "var(--ink)" }}>Tipe</th>
+                          <th style={{ textAlign: "left", padding: "6px 10px", borderBottom: "1px solid var(--hairline-strong)", color: "var(--ink)" }}>Deskripsi</th>
                         </tr>
                       </thead>
                       <tbody>
                         {ep.params.map((p) => (
                           <tr key={p.name}>
-                            <td style={{ padding: "6px 10px", borderBottom: "1px solid var(--line-soft)", whiteSpace: "nowrap" }}>
+                            <td style={{ padding: "6px 10px", borderBottom: "1px solid var(--hairline)", whiteSpace: "nowrap" }}>
                               <code>{p.name}</code> {p.req && <span style={{ color: "var(--err)" }}>*</span>}
                             </td>
-                            <td style={{ padding: "6px 10px", borderBottom: "1px solid var(--line-soft)", color: "var(--text-2)" }}>{p.type}</td>
-                            <td style={{ padding: "6px 10px", borderBottom: "1px solid var(--line-soft)", color: "var(--text-2)" }}>{p.desc}</td>
+                            <td style={{ padding: "6px 10px", borderBottom: "1px solid var(--hairline)", color: "var(--body)" }}>{p.type}</td>
+                            <td style={{ padding: "6px 10px", borderBottom: "1px solid var(--hairline)", color: "var(--body)" }}>{p.desc}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -242,13 +242,13 @@ export default function Docs() {
       <AnimatedContent>
         <div className="card" style={{ padding: "20px 22px", marginTop: 26 }}>
           <h3 style={{ marginTop: 0 }}>Format Respons</h3>
-          <p style={{ color: "var(--text-2)", margin: "6px 0 10px" }}>
+          <p style={{ color: "var(--body)", margin: "6px 0 10px" }}>
             Berhasil (HTTP 200):
           </p>
           <CodeBlock code={`{\n  "ok": true,\n  "data": [ ... ],\n  "meta": { "page": 1, "limit": 50, "total": 3029, "pages": 61 }\n}`} />
-          <p style={{ color: "var(--text-2)", margin: "16px 0 10px" }}>Gagal (HTTP 4xx/5xx):</p>
+          <p style={{ color: "var(--body)", margin: "16px 0 10px" }}>Gagal (HTTP 4xx/5xx):</p>
           <CodeBlock code={`{\n  "ok": false,\n  "error": { "status": 400, "message": "type tidak dikenal..." }\n}`} />
-          <p style={{ color: "var(--text-2)", margin: "16px 0 10px" }}>Struktur satu entri:</p>
+          <p style={{ color: "var(--body)", margin: "16px 0 10px" }}>Struktur satu entri:</p>
           <CodeBlock code={`{\n  "id": "jv-00001",\n  "word": "abang",\n  "letter": "A",\n  "level": "ngoko",\n  "pos": "t.ka.",\n  "pos_info": { "jv": "tembung kahanan", "id": "kata sifat", "en": "adjective" },\n  "meaning": "merah",\n  "krama": "abrit",\n  "krama_inggil": null,\n  "example": { "jv": "Klambiku abang.", "id": "Bajuku merah." }\n}`} />
         </div>
       </AnimatedContent>
@@ -258,7 +258,7 @@ export default function Docs() {
         <div className="card" style={{ padding: "20px 22px", marginTop: 26, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <h3 style={{ marginTop: 0, marginBottom: 6 }}>Spesifikasi OpenAPI 3.0</h3>
-            <p style={{ color: "var(--text-2)", margin: 0, fontSize: "0.92rem" }}>
+            <p style={{ color: "var(--body)", margin: 0, fontSize: "0.92rem" }}>
               {openapi ? `${openapi.info?.title} v${openapi.info?.version} — ${Object.keys(openapi.paths || {}).length} path siap diimpor.` : "Memuat spesifikasi…"}
             </p>
           </div>

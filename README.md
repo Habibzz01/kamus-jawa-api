@@ -54,3 +54,11 @@ npm run build    # tipe-check + build dist
 ```bash
 npx vercel deploy --prod --yes --token $VERCEL_TOKEN
 ```
+
+## 🎨 Desain
+
+Proyek ini memakai **DESIGN.md** (dari `npx getdesign@latest add expo`) sebagai
+referensi desain — design language ala **Expo**: kanvas putih, CTA hitam pekat,
+link biru inline (`#0d74ce`), Inter (display 600 / body 400), JetBrains Mono
+untuk kode, hairline borders, radius 8px (CTA) / 12px (kartu), pill khusus badge,
+dan gradasi langit biru hanya di hero.

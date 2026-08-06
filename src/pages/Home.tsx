@@ -38,8 +38,8 @@ export default function Home() {
 
   return (
     <div>
-      {/* HERO */}
-      <section className="container" style={{ paddingTop: 70, paddingBottom: 50, textAlign: "center" }}>
+      {/* HERO — gradasi langit ala Expo */}
+      <section className="container hero-band" style={{ paddingTop: 88, paddingBottom: 56, textAlign: "center" }}>
         <AnimatedContent>
           <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 18 }}>
             <span className="badge badge-gold">REST API Dinamis</span>
@@ -50,7 +50,7 @@ export default function Home() {
 
         <SplitText text="Kamus Lengkap Basa Jawa" style={{ fontSize: "clamp(2.2rem, 6vw, 4rem)", margin: 0 }} />
         <AnimatedContent delay={0.3}>
-          <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: "1.25rem", color: "var(--text-2)", margin: "10px 0 26px" }}>
+          <p style={{ fontFamily: "var(--sans)", fontStyle: "italic", fontSize: "1.25rem", color: "var(--body)", margin: "10px 0 26px" }}>
             Ngoko · Krama · Krama <GradientText>Inggil</GradientText> — dalam satu API.
           </p>
         </AnimatedContent>
@@ -63,8 +63,8 @@ export default function Home() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Coba: abang, mangan, tuku, gedhe…"
               style={{
-                flex: 1, padding: "13px 18px", borderRadius: 999, border: "1px solid var(--line)",
-                background: "var(--card)", color: "var(--text)", fontSize: "1rem", outline: "none",
+                flex: 1, padding: "0 18px", height: 44, borderRadius: 8, border: "1px solid var(--hairline-strong)",
+                background: "var(--surface-card)", color: "var(--ink)", fontSize: "1rem", outline: "none",
               }}
             />
             <Magnetic>
@@ -78,14 +78,14 @@ export default function Home() {
         {searched && (
           <div style={{ maxWidth: 560, margin: "0 auto", textAlign: "left" }}>
             {results.length === 0 ? (
-              <p style={{ color: "var(--text-3)", fontSize: "0.9rem" }}>Tidak ditemukan. Coba kata lain.</p>
+              <p style={{ color: "var(--muted)", fontSize: "0.9rem" }}>Tidak ditemukan. Coba kata lain.</p>
             ) : (
               results.map((e, i) => (
                 <FadeUp key={e.id} delay={i * 0.05}>
                   <div className="card" style={{ padding: "10px 16px", marginBottom: 8, display: "flex", gap: 12, alignItems: "baseline" }}>
-                    <b style={{ color: "var(--gold-2)", fontFamily: "var(--serif)", fontSize: "1.05rem", minWidth: 110 }}>{e.word}</b>
+                    <b style={{ color: "var(--ink)", fontFamily: "var(--sans)", fontSize: "1.05rem", minWidth: 110 }}>{e.word}</b>
                     <span className="badge badge-muted">{e.level}</span>
-                    <span style={{ color: "var(--text-2)", fontSize: "0.9rem" }}>— {e.meaning}</span>
+                    <span style={{ color: "var(--body)", fontSize: "0.9rem" }}>— {e.meaning}</span>
                   </div>
                 </FadeUp>
               ))
@@ -100,10 +100,10 @@ export default function Home() {
           {stats.map((s, i) => (
             <FadeUp key={s.label} delay={i * 0.08}>
               <SpotlightCard className="card" style={{ padding: "22px 24px", textAlign: "center" }}>
-                <div style={{ fontFamily: "var(--serif)", fontSize: "2.4rem", fontWeight: 700, color: "var(--gold-2)" }}>
+                <div style={{ fontFamily: "var(--sans)", fontSize: "2.4rem", fontWeight: 700, color: "var(--ink)" }}>
                   <NumberTicker value={s.value} />
                 </div>
-                <div style={{ color: "var(--text-2)", fontSize: "0.9rem", marginTop: 4 }}>{s.label}</div>
+                <div style={{ color: "var(--body)", fontSize: "0.9rem", marginTop: 4 }}>{s.label}</div>
               </SpotlightCard>
             </FadeUp>
           ))}
@@ -122,8 +122,8 @@ export default function Home() {
             <FadeUp key={f.to} delay={i * 0.08}>
               <Link to={f.to} style={{ textDecoration: "none" }}>
                 <SpotlightCard className="card" style={{ padding: "26px 26px", height: "100%", display: "block" }}>
-                  <h3 style={{ marginTop: 0, color: "var(--gold-2)" }}>{f.t}</h3>
-                  <p style={{ color: "var(--text-2)", fontSize: "0.92rem", margin: 0 }}>{f.d}</p>
+                  <h3 style={{ marginTop: 0, color: "var(--ink)" }}>{f.t}</h3>
+                  <p style={{ color: "var(--body)", fontSize: "0.92rem", margin: 0 }}>{f.d}</p>
                 </SpotlightCard>
               </Link>
             </FadeUp>
