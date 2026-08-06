@@ -178,7 +178,7 @@ export default function Docs() {
       <AnimatedContent delay={0.1}>
         <div className="card" style={{ padding: "20px 22px", marginTop: 26 }}>
           <h3 style={{ marginTop: 0 }}>Contoh Panggilan</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 14 }}>
             <CodeBlock code={`// JavaScript (fetch)\nconst res = await fetch("/api/search?q=abang");\nconst { data } = await res.json();`} />
             <CodeBlock code={`# Python (requests)\nimport requests\nr = requests.get("https://kamus-api.vercel.app/api/entries?letter=k")\ndata = r.json()["data"]`} />
             <CodeBlock code={`$ curl "https://kamus-api.vercel.app/api/proverbs?type=saloka"`} />
@@ -208,7 +208,7 @@ export default function Docs() {
               {ep.params && (
                 <div style={{ marginTop: 10 }}>
                   <div style={{ fontSize: "0.8rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Parameter Query</div>
-                  <div style={{ overflowX: "auto" }}>
+                  <div style={{ overflowX: "auto", width: "100%" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
                       <thead>
                         <tr>

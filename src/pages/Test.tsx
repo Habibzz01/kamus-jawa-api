@@ -112,9 +112,9 @@ export default function Test() {
         </p>
       </AnimatedContent>
 
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(240px, 300px) 1fr", gap: 18, marginTop: 20 }}>
+      <div className="tester-grid">
         {/* Daftar endpoint */}
-        <div style={{ maxHeight: "68vh", overflowY: "auto", paddingRight: 6 }}>
+        <div className="tester-list">
           {ENDPOINTS.map((ep) => (
             <button
               key={ep.id}
@@ -146,7 +146,7 @@ export default function Test() {
             </div>
 
             {activeParams.length > 0 && (
-              <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
+              <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 200px), 1fr))", gap: 10 }}>
                 {activeParams.map((p) => (
                   <label key={p.name} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                     <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>

@@ -57,13 +57,13 @@ export default function Home() {
 
         {/* Quick search */}
         <AnimatedContent delay={0.42}>
-          <form onSubmit={doSearch} style={{ display: "flex", gap: 10, maxWidth: 560, margin: "0 auto 20px" }}>
+          <form onSubmit={doSearch} style={{ display: "flex", gap: 10, maxWidth: 560, margin: "0 auto 20px", width: "100%" }}>
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Coba: abang, mangan, tuku, gedhe…"
               style={{
-                flex: 1, padding: "0 18px", height: 44, borderRadius: 8, border: "1px solid var(--hairline-strong)",
+                flex: 1, minWidth: 0, padding: "0 18px", height: 44, borderRadius: 8, border: "1px solid var(--hairline-strong)",
                 background: "var(--surface-card)", color: "var(--ink)", fontSize: "1rem", outline: "none",
               }}
             />
@@ -96,7 +96,7 @@ export default function Home() {
 
       {/* STATS */}
       <section className="container" style={{ paddingBottom: 60 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: 14 }}>
           {stats.map((s, i) => (
             <FadeUp key={s.label} delay={i * 0.08}>
               <SpotlightCard className="card" style={{ padding: "22px 24px", textAlign: "center" }}>
@@ -112,7 +112,7 @@ export default function Home() {
 
       {/* FITUR */}
       <section className="container" style={{ paddingBottom: 30 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 16 }}>
           {[
             { to: "/docs", t: "Dokumentasi Lengkap", d: "Semua endpoint, parameter, contoh kode (curl, JavaScript, Python), format respons & error." },
             { to: "/test", t: "API Tester Interaktif", d: "Coba setiap endpoint langsung dari browser: isi parameter, kirim, lihat status & respons JSON." },

@@ -69,7 +69,7 @@ export default function Explore() {
         <p style={{ color: "var(--muted)" }}>Memuat…</p>
       ) : (
         <>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))", gap: 12 }}>
             {rows.map((e, i) => (
               <FadeUp key={e.id} delay={Math.min(i, 8) * 0.04}>
                 <div className="card" style={{ padding: "16px 18px" }}>
