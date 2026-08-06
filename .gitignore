@@ -3,8 +3,8 @@ node_modules/
 
 # build output
 dist/
-.vercel/
 .vercel/output
+!.vercel/project.json
 
 # data source (sudah inline di api/entry.ts)
 data/
