@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AnimatedContent, FadeUp } from "../components/reactbits";
+import DidYouMean from "../components/DidYouMean";
 import { ArrowRightLeft, Search, ChevronRight } from "../components/Icon";
 import { api } from "../lib/api";
 
@@ -22,6 +23,7 @@ export default function Terjemah() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
+  const [suggests, setSuggests] = useState<string[]>([]);
 
   async function doSearch(term?: string, d?: Dir) {
     const query = (term ?? q).trim();
@@ -34,9 +36,20 @@ export default function Terjemah() {
       const r = await api.translate(query, direction);
       setData(r.data || []);
       setMeta(r);
+      if ((r.data || []).length === 0) {
+        try {
+          const sg = await api.suggest(query, direction);
+          setSuggests(sg.data || []);
+        } catch {
+          setSuggests([]);
+        }
+      } else {
+        setSuggests([]);
+      }
     } catch (e: any) {
       setData([]);
       setError(e?.message || "Terjadi kesalahan");
+      setSuggests([]);
     } finally {
       setLoading(false);
     }
@@ -47,6 +60,7 @@ export default function Terjemah() {
     setData(null);
     setSearched(false);
     setQ("");
+    setSuggests([]);
   }
 
   return (
@@ -135,7 +149,16 @@ export default function Terjemah() {
         {error && <p style={{ color: "var(--err)" }}>{error}</p>}
 
         {searched && !loading && !error && data && data.length === 0 && (
-          <p style={{ color: "var(--muted)" }}>Tidak ditemukan. Coba kata lain.</p>
+          <div>
+            <p style={{ color: "var(--muted)" }}>Tidak ditemukan. Coba kata lain.</p>
+            <DidYouMean
+              items={suggests}
+              onPick={(w) => {
+                setQ(w);
+                doSearch(w);
+              }}
+            />
+          </div>
         )}
 
         {data && data.length > 0 && (

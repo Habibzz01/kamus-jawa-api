@@ -2,6 +2,7 @@ import { NavLink, Link, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Sun, Moon, BookOpen, Code, Layers, GraduationCap, ArrowRightLeft } from "./Icon";
+import SpecularButton from "./reactbits/SpecularButton";
 
 const LINKS = [
   { to: "/", label: "Beranda", icon: null },
@@ -68,13 +69,25 @@ export function Nav() {
           })}
         </nav>
 
-        <button
-          className="btn btn-primary nav-cta"
+        <SpecularButton
+          className="nav-cta"
+          size="sm"
+          radius={8}
+          textColor="#ffffff"
+          lineColor="#ffffff"
+          baseColor="#171717"
+          tint="#ffffff"
+          tintOpacity={0.08}
+          intensity={1}
+          shineSize={13}
+          shineFade={44}
+          thickness={1.1}
+          followMouse
+          proximity={220}
           onClick={() => window.open("/api/meta", "_blank")}
-          style={{ whiteSpace: "nowrap" }}
         >
           API
-        </button>
+        </SpecularButton>
 
         {/* Toggle tema — ikon SVG, tanpa emoji */}
         <motion.button

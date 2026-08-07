@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatedContent, FadeUp } from "../components/reactbits";
+import DidYouMean from "../components/DidYouMean";
 import { ChevronLeft, ChevronRight } from "../components/Icon";
 import { api } from "../lib/api";
 
@@ -11,6 +12,7 @@ export default function Explore() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [suggests, setSuggests] = useState<string[]>([]);
 
   const limit = 30;
 
@@ -18,8 +20,15 @@ export default function Explore() {
     setLoading(true);
     api
       .entries({ letter, q: q || undefined, page, limit })
-      .then((r) => setData(r))
-      .catch(() => setData(null))
+      .then((r) => {
+        setData(r);
+        if ((r.data || []).length === 0 && q.trim()) {
+          api.suggest(q.trim()).then((sg) => setSuggests(sg.data || [])).catch(() => setSuggests([]));
+        } else {
+          setSuggests([]);
+        }
+      })
+      .catch(() => { setData(null); setSuggests([]); })
       .finally(() => setLoading(false));
   }, [letter, q, page]);
 
@@ -70,6 +79,17 @@ export default function Explore() {
         <p style={{ color: "var(--muted)" }}>Memuat…</p>
       ) : (
         <>
+          {rows.length === 0 && q.trim() && (
+            <div style={{ marginBottom: 14 }}>
+              <DidYouMean
+                items={suggests}
+                onPick={(w) => {
+                  setQ(w);
+                  setPage(1);
+                }}
+              />
+            </div>
+          )}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))", gap: 12 }}>
             {rows.map((e, i) => (
               <FadeUp key={e.id} delay={Math.min(i, 8) * 0.04}>

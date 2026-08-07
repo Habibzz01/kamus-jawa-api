@@ -58,6 +58,24 @@ function filterText(list: any[], q: string | undefined, fields: string[]) {
   return list.filter((it) => fields.some((f) => String(it[f] ?? "").toLowerCase().includes(needle)));
 }
 
+// Levenshtein distance untuk autocorrect
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  const dp: number[] = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    let prev = dp[0];
+    dp[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const tmp = dp[j];
+      dp[j] = Math.min(dp[j] + 1, dp[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = tmp;
+    }
+  }
+  return dp[n];
+}
+
 // ---------------- HANDLERS ----------------
 const H: Record<string, Handler> = {
   // GET /api
@@ -69,7 +87,7 @@ const H: Record<string, Handler> = {
         "/api", "/api/meta", "/api/entries", "/api/search", "/api/turunan", "/api/thematic",
         "/api/proverbs", "/api/cangkriman", "/api/dialogs", "/api/geguritan", "/api/sentences",
         "/api/saku", "/api/reverse", "/api/tanya-jawab", "/api/extra", "/api/latihan",
-        "/api/rencana", "/api/unggah-ungguh", "/api/translate", "/api/openapi",
+        "/api/rencana", "/api/unggah-ungguh", "/api/translate", "/api/suggest", "/api/openapi",
       ],
     };
   },
@@ -237,6 +255,37 @@ const H: Record<string, Handler> = {
       example: e.example || null,
     }));
     return { data: list, total: list.length, direction: dir, query: q };
+  },
+
+  // GET /api/suggest?q=&dir=jv-id|id-jv&limit= — autocorrect "mungkin kamu mencari"
+  suggest: (req) => {
+    const q = (qs(req, "q") || "").trim().toLowerCase();
+    const dir = (qs(req, "dir") || "jv-id").toLowerCase();
+    const limit = Math.min(Math.max(num(req, "limit", 5), 1), 10);
+    if (!q) return { data: [], total: 0, query: q, direction: dir };
+    const words = new Set<string>();
+    if (dir === "id-jv") {
+      for (const r of (KAMUS.reverse || [])) if (r.id) words.add(String(r.id));
+      for (const e of KAMUS.entries) if (e.meaning && String(e.meaning).length <= 26) words.add(String(e.meaning));
+    } else {
+      for (const e of KAMUS.entries) {
+        words.add(e.word);
+        if (e.krama) words.add(e.krama);
+        if (e.krama_inggil) words.add(e.krama_inggil);
+      }
+      for (const r of (KAMUS.reverse || [])) { words.add(r.ngoko); words.add(r.krama); }
+    }
+    const maxDist = Math.max(1, Math.min(3, Math.floor(q.length / 3)));
+    const scored: { w: string; d: number }[] = [];
+    for (const w of words) {
+      const lw = w.toLowerCase();
+      if (lw === q) continue;
+      const d = levenshtein(q, lw);
+      if (d <= maxDist) scored.push({ w, d });
+    }
+    scored.sort((a, b) => a.d - b.d || a.w.localeCompare(b.w));
+    const data = scored.slice(0, limit).map((s) => s.w);
+    return { data, total: data.length, query: q, direction: dir };
   },
 
   // GET /api/openapi

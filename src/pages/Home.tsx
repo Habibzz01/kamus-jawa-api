@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AnimatedContent, SplitText, GradientText, NumberTicker, FadeUp, Magnetic, SpotlightCard } from "../components/reactbits";
 import SpecularButton from "../components/reactbits/SpecularButton";
+import DidYouMean from "../components/DidYouMean";
 import { api } from "../lib/api";
 
 export default function Home() {
@@ -10,21 +12,35 @@ export default function Home() {
   const [results, setResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [suggests, setSuggests] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.meta().then((m) => setCounts(m.data?.counts)).catch(() => {});
   }, []);
 
-  async function doSearch(e?: React.FormEvent) {
+  async function doSearch(e?: React.FormEvent, term?: string) {
     e?.preventDefault();
-    if (!q.trim()) return;
+    const query = (term ?? q).trim();
+    if (!query) return;
     setSearching(true);
     setSearched(true);
     try {
-      const r = await api.search(q.trim(), { limit: 6 });
+      const r = await api.search(query, { limit: 6 });
       setResults(r.data || []);
+      if ((r.data || []).length === 0) {
+        try {
+          const sug = await api.suggest(query);
+          setSuggests(sug.data || []);
+        } catch {
+          setSuggests([]);
+        }
+      } else {
+        setSuggests([]);
+      }
     } catch {
       setResults([]);
+      setSuggests([]);
     } finally {
       setSearching(false);
     }
@@ -93,7 +109,18 @@ export default function Home() {
         {searched && (
           <div style={{ maxWidth: 560, margin: "0 auto", textAlign: "left" }}>
             {results.length === 0 ? (
-              <p style={{ color: "var(--muted)", fontSize: "0.9rem" }}>Tidak ditemukan. Coba kata lain.</p>
+              <div>
+                <p style={{ color: "var(--muted)", fontSize: "0.9rem" }}>Tidak ditemukan. Coba kata lain.</p>
+                {searched && (
+                  <DidYouMean
+                    items={suggests}
+                    onPick={(w) => {
+                      setQ(w);
+                      doSearch(undefined, w);
+                    }}
+                  />
+                )}
+              </div>
             ) : (
               results.map((e, i) => (
                 <FadeUp key={e.id} delay={i * 0.05}>
@@ -135,12 +162,39 @@ export default function Home() {
             { to: "/api/openapi", t: "OpenAPI 3.0", d: "Spesifikasi OpenAPI siap diimpor ke Postman, Insomnia, atau Swagger UI." },
           ].map((f, i) => (
             <FadeUp key={f.to} delay={i * 0.08}>
-              <Link to={f.to} style={{ textDecoration: "none" }}>
-                <SpotlightCard className="card" style={{ padding: "26px 26px", height: "100%", display: "block" }}>
+              {f.to === "/docs" ? (
+                <SpotlightCard className="card" style={{ padding: "26px 26px", height: "100%", display: "flex", flexDirection: "column" }}>
                   <h3 style={{ marginTop: 0, color: "var(--ink)" }}>{f.t}</h3>
-                  <p style={{ color: "var(--body)", fontSize: "0.92rem", margin: 0 }}>{f.d}</p>
+                  <p style={{ color: "var(--body)", fontSize: "0.92rem", margin: 0, flex: 1 }}>{f.d}</p>
+                  <div style={{ marginTop: 16 }}>
+                    <SpecularButton
+                      size="sm"
+                      radius={8}
+                      textColor="#ffffff"
+                      lineColor="#ffffff"
+                      baseColor="#171717"
+                      tint="#ffffff"
+                      tintOpacity={0.08}
+                      intensity={1}
+                      shineSize={14}
+                      shineFade={46}
+                      thickness={1.1}
+                      followMouse
+                      proximity={220}
+                      onClick={() => navigate("/docs")}
+                    >
+                      Buka Dokumentasi
+                    </SpecularButton>
+                  </div>
                 </SpotlightCard>
-              </Link>
+              ) : (
+                <Link to={f.to} style={{ textDecoration: "none" }}>
+                  <SpotlightCard className="card" style={{ padding: "26px 26px", height: "100%", display: "block" }}>
+                    <h3 style={{ marginTop: 0, color: "var(--ink)" }}>{f.t}</h3>
+                    <p style={{ color: "var(--body)", fontSize: "0.92rem", margin: 0 }}>{f.d}</p>
+                  </SpotlightCard>
+                </Link>
+              )}
             </FadeUp>
           ))}
         </div>
