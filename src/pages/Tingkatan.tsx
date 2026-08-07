@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AnimatedContent, FadeUp, SpotlightCard, NumberTicker } from "../components/reactbits";
+import { AnimatedContent, FadeUp, SpotlightCard } from "../components/reactbits";
 import { GraduationCap, BookOpen, Sparkles, Check, ChevronRight, Code, ArrowRightLeft } from "../components/Icon";
-import { api } from "../lib/api";
 
 interface Tier {
   key: string;
@@ -11,7 +9,6 @@ interface Tier {
   icon: any;
   color: string;
   topics: string[];
-  countKey?: string;
   cta: { to: string; label: string; icon?: any }[];
 }
 
@@ -30,7 +27,6 @@ const TIERS: Tier[] = [
       "100 kosakata inti",
       "Kamus saku ngoko ke krama",
     ],
-    countKey: "saku",
     cta: [
       { to: "/explore", label: "Jelajah kosakata", icon: ChevronRight },
       { to: "/docs", label: "Panduan", icon: ChevronRight },
@@ -50,7 +46,6 @@ const TIERS: Tier[] = [
       "Tanya-jawab harian (30 dialog)",
       "Pacelathon: di pasar, sekolah, rumah sakit",
     ],
-    countKey: "sentences_3levels",
     cta: [
       { to: "/terjemah", label: "Terjemah dua arah", icon: ArrowRightLeft },
       { to: "/explore", label: "Telusuri entri", icon: ChevronRight },
@@ -70,7 +65,6 @@ const TIERS: Tier[] = [
       "Unggah-ungguh mendalam (krama andhap, inggil)",
       "Latihan soal 160 + rencana belajar 140 hari",
     ],
-    countKey: "latihan_soal",
     cta: [
       { to: "/test", label: "Uji di API Tester", icon: Code },
       { to: "/docs", label: "Semua endpoint", icon: ChevronRight },
@@ -92,12 +86,6 @@ const CHEAT: [string, string, string, string][] = [
 ];
 
 export default function Tingkatan() {
-  const [counts, setCounts] = useState<any>(null);
-
-  useEffect(() => {
-    api.meta().then((m) => setCounts(m.data?.counts)).catch(() => {});
-  }, []);
-
   return (
     <div className="container" style={{ paddingTop: 44 }}>
       <AnimatedContent>
@@ -112,7 +100,6 @@ export default function Tingkatan() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 16, marginTop: 24 }}>
         {TIERS.map((tier, i) => {
           const Icon = tier.icon;
-          const count = counts?.[tier.countKey ?? ""];
           return (
             <FadeUp key={tier.key} delay={i * 0.08}>
               <SpotlightCard className="card" style={{ padding: "26px", height: "100%", display: "flex", flexDirection: "column" }}>
@@ -143,15 +130,6 @@ export default function Tingkatan() {
                     </li>
                   ))}
                 </ul>
-
-                {count !== undefined && count !== null && (
-                  <div style={{ marginTop: 14, color: "var(--muted)", fontSize: "0.85rem" }}>
-                    Materi tersedia:{" "}
-                    <b style={{ color: tier.color, fontFamily: "var(--sans)" }}>
-                      <NumberTicker value={count} />
-                    </b>
-                  </div>
-                )}
 
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 16 }}>
                   {tier.cta.map((c) => {

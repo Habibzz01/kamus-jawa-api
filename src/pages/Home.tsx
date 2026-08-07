@@ -57,13 +57,6 @@ export default function Home() {
     <div>
       {/* HERO — gradasi langit ala Expo */}
       <section className="container hero-band" style={{ paddingTop: 88, paddingBottom: 56, textAlign: "center" }}>
-        <AnimatedContent>
-          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 18 }}>
-            <span className="badge badge-gold">REST API Dinamis</span>
-            <span className="badge badge-green">CORS Enabled</span>
-            <span className="badge badge-muted">TypeScript</span>
-          </div>
-        </AnimatedContent>
 
         <SplitText text="Kamus Lengkap Basa Jawa" style={{ fontSize: "clamp(2.2rem, 6vw, 4rem)", margin: 0 }} />
         <AnimatedContent delay={0.3}>

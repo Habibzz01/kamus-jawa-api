@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AnimatedContent, FadeUp } from "../components/reactbits";
+import { AnimatedContent } from "../components/reactbits";
 import { Play } from "../components/Icon";
 import { api } from "../lib/api";
 
@@ -212,11 +212,6 @@ export default function Test() {
         </div>
       </div>
 
-      <FadeUp>
-        <p style={{ color: "var(--muted)", fontSize: "0.85rem", marginTop: 22 }}>
-          Tip: buka halaman ini di <b>mode responsif</b> — layout menyesuaikan untuk ponsel. Semua request memakai base URL situs saat ini.
-        </p>
-      </FadeUp>
     </div>
   );
 }

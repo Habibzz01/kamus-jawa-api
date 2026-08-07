@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import { AnimatedContent, FadeUp } from "../components/reactbits";
 import { Info } from "../components/Icon";
-import { api } from "../lib/api";
 
 interface Endpoint {
   method: string;
@@ -151,12 +149,6 @@ function CodeBlock({ code }: { code: string }) {
 }
 
 export default function Docs() {
-  const [openapi, setOpenapi] = useState<any>(null);
-
-  useEffect(() => {
-    api.openapi().then((r) => setOpenapi(r.data)).catch(() => {});
-  }, []);
-
   return (
     <div className="container" style={{ paddingTop: 44 }}>
       <AnimatedContent>
@@ -168,11 +160,6 @@ export default function Docs() {
           CORS diaktifkan (<code>Access-Control-Allow-Origin: *</code>), sehingga bisa dipanggil dari
           aplikasi mana pun — browser, Node.js, Python, dsb.
         </p>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
-          <span className="badge badge-green">Tanpa autentikasi</span>
-          <span className="badge badge-green">CORS: *</span>
-          <span className="badge badge-muted">Cache: 60 dtk (CDN 300 dtk)</span>
-        </div>
       </AnimatedContent>
 
       {/* Contoh dasar */}
@@ -189,9 +176,7 @@ export default function Docs() {
 
       {/* Daftar endpoint */}
       <h2 style={{ marginTop: 46 }}>Daftar Endpoint</h2>
-      <p style={{ color: "var(--body)", marginTop: -6 }}>
-        Klik salah satu untuk menyalin contohnya. Ganti <code>&lt;domain&gt;</code> dengan URL Vercel kamu.
-      </p>
+
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 16 }}>
         {ENDPOINTS.map((ep, i) => (
@@ -260,10 +245,10 @@ export default function Docs() {
           <div>
             <h3 style={{ marginTop: 0, marginBottom: 6 }}>Spesifikasi OpenAPI 3.0</h3>
             <p style={{ color: "var(--body)", margin: 0, fontSize: "0.92rem" }}>
-              {openapi ? `${openapi.info?.title} v${openapi.info?.version} — ${Object.keys(openapi.paths || {}).length} path siap diimpor.` : "Memuat spesifikasi…"}
+              Siap diimpor ke Postman, Insomnia, atau Swagger UI.
             </p>
           </div>
-          <a className="btn btn-primary" href="/api/openapi" target="_blank" rel="noreferrer">Buka /api/openapi</a>
+          <a className="btn btn-primary" href="/api/openapi" target="_blank" rel="noreferrer">Buka OpenAPI</a>
         </div>
       </AnimatedContent>
     </div>
