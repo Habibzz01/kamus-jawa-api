@@ -206,11 +206,26 @@ const H: Record<string, Handler> = {
     if (!q) return { data: [], total: 0, direction: dir, query: q };
     const needle = q.toLowerCase();
     if (dir === "id-jv") {
-      // Indonesia → Jawa (kamus balik)
+      // Indonesia → Jawa: gabung kamus balik + pencarian arti entri
       const rows = (KAMUS.reverse || []).map((r: any) => ({ indonesia: r.id, ngoko: r.ngoko, krama: r.krama }));
-      const list = rows.filter((r: any) =>
+      const fromReverse = rows.filter((r: any) =>
         [r.indonesia, r.ngoko, r.krama].some((v) => String(v).toLowerCase().includes(needle))
-      ).slice(0, limit);
+      );
+      const fromEntries = KAMUS.entries
+        .filter((e: any) => e.meaning && String(e.meaning).toLowerCase().includes(needle))
+        .map((e: any) => ({ indonesia: e.meaning, ngoko: e.word, krama: e.krama || null }));
+      const merged: any[] = [];
+      const seen = new Set<string>();
+      for (const it of [...fromReverse, ...fromEntries]) {
+        if (it.ngoko && !seen.has(it.ngoko)) {
+          seen.add(it.ngoko);
+          merged.push(it);
+        }
+      }
+      const exact = merged.filter((m) => m.indonesia.toLowerCase() === needle);
+      const prefix = merged.filter((m) => m.indonesia.toLowerCase() !== needle && m.indonesia.toLowerCase().startsWith(needle));
+      const rest = merged.filter((m) => !exact.includes(m) && !prefix.includes(m));
+      const list = [...exact, ...prefix, ...rest].slice(0, limit);
       return { data: list, total: list.length, direction: dir, query: q };
     }
     // Jawa → Indonesia (kamus inti)
