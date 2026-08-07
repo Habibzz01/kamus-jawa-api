@@ -1,15 +1,42 @@
 import { NavLink, Link, Outlet } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
-const links = [
+const LINKS = [
   { to: "/", label: "Beranda" },
   { to: "/docs", label: "Dokumentasi" },
   { to: "/test", label: "API Tester" },
   { to: "/explore", label: "Jelajah Kata" },
 ];
 
+function useTheme() {
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof document !== "undefined") {
+      const saved = document.documentElement.getAttribute("data-theme");
+      if (saved === "dark" || saved === "light") return saved;
+    }
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
+      return "dark";
+    }
+    return "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem("kamus-theme", theme);
+    } catch {
+      /* abaikan */
+    }
+  }, [theme]);
+
+  return { theme, toggle: () => setTheme((t) => (t === "light" ? "dark" : "light")) };
+}
+
 export function Nav() {
   const [open, setOpen] = useState(false);
+  const { theme, toggle } = useTheme();
+
   return (
     <header className="nav-header">
       <div className="container nav-row">
@@ -20,13 +47,13 @@ export function Nav() {
           </span>
         </Link>
 
-        <nav className={"nav-links" + (open ? " open" : "")}>
-          {links.map((l) => (
+        {/* Nav desktop */}
+        <nav className="nav-desktop">
+          {LINKS.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
               end={l.to === "/"}
-              onClick={() => setOpen(false)}
               className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
             >
               {l.label}
@@ -42,6 +69,29 @@ export function Nav() {
           GET /api
         </button>
 
+        {/* Toggle tema */}
+        <motion.button
+          className="theme-toggle"
+          onClick={toggle}
+          aria-label={theme === "dark" ? "Mode terang" : "Mode gelap"}
+          whileTap={{ scale: 0.88 }}
+          whileHover={{ scale: 1.06 }}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={theme}
+              initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+              animate={{ rotate: 0, opacity: 1, scale: 1 }}
+              exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+              transition={{ duration: 0.22 }}
+              style={{ display: "inline-block" }}
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </motion.span>
+          </AnimatePresence>
+        </motion.button>
+
+        {/* Burger */}
         <button
           className={"nav-burger" + (open ? " open" : "")}
           onClick={() => setOpen((o) => !o)}
@@ -53,6 +103,60 @@ export function Nav() {
           <span />
         </button>
       </div>
+
+      {/* Nav mobile — animasi buka/tutup */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="nav-mobile"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.21, 0.65, 0.28, 1] }}
+            style={{ overflow: "hidden" }}
+          >
+            <div className="nav-mobile-inner">
+              <div className="container" style={{ paddingTop: 8, paddingBottom: 12 }}>
+                {LINKS.map((l, i) => (
+                  <motion.div
+                    key={l.to}
+                    initial={{ opacity: 0, x: -14 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 + i * 0.06, duration: 0.28, ease: "easeOut" }}
+                  >
+                    <NavLink
+                      to={l.to}
+                      end={l.to === "/"}
+                      onClick={() => setOpen(false)}
+                      className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+                      style={{ display: "block" }}
+                    >
+                      {l.label}
+                    </NavLink>
+                  </motion.div>
+                ))}
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.28, duration: 0.25 }}
+                  style={{ padding: "10px 4px 2px" }}
+                >
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      window.open("/api/meta", "_blank");
+                      setOpen(false);
+                    }}
+                    style={{ width: "100%", justifyContent: "center" }}
+                  >
+                    GET /api
+                  </button>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
@@ -60,7 +164,17 @@ export function Nav() {
 export function Footer() {
   return (
     <footer style={{ borderTop: "1px solid var(--hairline-strong)", marginTop: 80, padding: "28px 0" }}>
-      <div className="container" style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "space-between", color: "var(--muted)", fontSize: "0.85rem" }}>
+      <div
+        className="container"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 12,
+          justifyContent: "space-between",
+          color: "var(--muted)",
+          fontSize: "0.85rem",
+        }}
+      >
         <span>Kamus Lengkap Basa Jawa · Ngoko · Krama · Krama Inggil</span>
         <span style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           <a href="/docs">Dokumentasi</a>
