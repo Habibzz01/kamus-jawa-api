@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { AnimatedContent, SplitText, GradientText, NumberTicker, FadeUp, Magnetic, SpotlightCard } from "../components/reactbits";
 import SpecularButton from "../components/reactbits/SpecularButton";
 import DidYouMean from "../components/DidYouMean";
 import { api } from "../lib/api";
+import { useDebounce } from "../lib/useDebounce";
 
 export default function Home() {
   const [counts, setCounts] = useState<any>(null);
   const [q, setQ] = useState("");
+  const dq = useDebounce(q, 300);
+  const reqId = useRef(0);
   const [results, setResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -19,32 +22,50 @@ export default function Home() {
     api.meta().then((m) => setCounts(m.data?.counts)).catch(() => {});
   }, []);
 
-  async function doSearch(e?: React.FormEvent, term?: string) {
-    e?.preventDefault();
-    const query = (term ?? q).trim();
+  async function runSearch(term: string) {
+    const query = term.trim();
     if (!query) return;
+    const id = ++reqId.current;
     setSearching(true);
     setSearched(true);
     try {
       const r = await api.search(query, { limit: 6 });
+      if (id !== reqId.current) return;
       setResults(r.data || []);
       if ((r.data || []).length === 0) {
         try {
           const sug = await api.suggest(query);
+          if (id !== reqId.current) return;
           setSuggests(sug.data || []);
         } catch {
-          setSuggests([]);
+          if (id === reqId.current) setSuggests([]);
         }
       } else {
         setSuggests([]);
       }
     } catch {
-      setResults([]);
-      setSuggests([]);
+      if (id === reqId.current) {
+        setResults([]);
+        setSuggests([]);
+      }
     } finally {
-      setSearching(false);
+      if (id === reqId.current) setSearching(false);
     }
   }
+
+  // Pencarian realtime saat user mengetik (debounce 300ms)
+  useEffect(() => {
+    if (dq.trim()) {
+      runSearch(dq);
+    } else {
+      reqId.current++;
+      setResults([]);
+      setSuggests([]);
+      setSearched(false);
+      setSearching(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dq]);
 
   const stats = [
     { label: "Entri kamus A–Z", value: counts?.entries ?? 3029 },
@@ -67,11 +88,11 @@ export default function Home() {
 
         {/* Quick search */}
         <AnimatedContent delay={0.42}>
-          <form onSubmit={doSearch} style={{ display: "flex", gap: 10, maxWidth: 560, margin: "0 auto 20px", width: "100%" }}>
+          <form onSubmit={(e) => { e.preventDefault(); runSearch(q); }} style={{ display: "flex", gap: 10, maxWidth: 560, margin: "0 auto 20px", width: "100%" }}>
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Coba: abang, mangan, tuku, gedhe…"
+              placeholder="Ketik kata… hasil muncul otomatis (mis. abang)"
               style={{
                 flex: 1, minWidth: 0, padding: "0 18px", height: 44, borderRadius: 8, border: "1px solid var(--hairline-strong)",
                 background: "var(--surface-card)", color: "var(--ink)", fontSize: "1rem", outline: "none",
@@ -109,7 +130,7 @@ export default function Home() {
                     items={suggests}
                     onPick={(w) => {
                       setQ(w);
-                      doSearch(undefined, w);
+                      runSearch(w);
                     }}
                   />
                 )}

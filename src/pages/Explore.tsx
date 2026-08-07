@@ -3,12 +3,14 @@ import { AnimatedContent, FadeUp } from "../components/reactbits";
 import DidYouMean from "../components/DidYouMean";
 import { ChevronLeft, ChevronRight } from "../components/Icon";
 import { api } from "../lib/api";
+import { useDebounce } from "../lib/useDebounce";
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
 
 export default function Explore() {
   const [letter, setLetter] = useState("a");
   const [q, setQ] = useState("");
+  const dq = useDebounce(q, 300);
   const [page, setPage] = useState(1);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -30,9 +32,9 @@ export default function Explore() {
       })
       .catch(() => { setData(null); setSuggests([]); })
       .finally(() => setLoading(false));
-  }, [letter, q, page]);
+  }, [letter, dq, page]);
 
-  useEffect(() => setPage(1), [letter, q]);
+  useEffect(() => setPage(1), [letter, dq]);
 
   const rows: any[] = useMemo(() => data?.data || [], [data]);
   const meta = data?.meta;

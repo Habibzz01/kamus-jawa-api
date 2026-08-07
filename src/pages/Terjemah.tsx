@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatedContent, FadeUp } from "../components/reactbits";
 import DidYouMean from "../components/DidYouMean";
 import { ArrowRightLeft, Search, ChevronRight } from "../components/Icon";
 import { api } from "../lib/api";
+import { useDebounce } from "../lib/useDebounce";
 
 type Dir = "jv-id" | "id-jv";
 
@@ -18,6 +19,7 @@ const EXAMPLES: { label: string; q: string; dir: Dir }[] = [
 export default function Terjemah() {
   const [dir, setDir] = useState<Dir>("jv-id");
   const [q, setQ] = useState("");
+  const dq = useDebounce(q, 300);
   const [data, setData] = useState<any[] | null>(null);
   const [meta, setMeta] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -54,6 +56,19 @@ export default function Terjemah() {
       setLoading(false);
     }
   }
+
+  // Pencarian realtime saat mengetik (debounce 300ms), mengikuti arah aktif
+  useEffect(() => {
+    if (dq.trim()) {
+      doSearch(dq, dir);
+    } else {
+      setData(null);
+      setSearched(false);
+      setSuggests([]);
+      setError(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dq, dir]);
 
   function swap() {
     setDir((d) => (d === "jv-id" ? "id-jv" : "jv-id"));
@@ -117,7 +132,7 @@ export default function Terjemah() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder={dir === "jv-id" ? "Ketik kata Jawa, mis. abang…" : "Ketik kata Indonesia, mis. makan…"}
+            placeholder={dir === "jv-id" ? "Ketik kata Jawa… hasil otomatis (mis. abang)" : "Ketik kata Indonesia… hasil otomatis (mis. makan)"}
             style={{ flex: 1, minWidth: 0, padding: "0 16px", height: 46, borderRadius: 8, border: "1px solid var(--hairline-strong)", background: "var(--surface-card)", color: "var(--ink)", outline: "none", fontSize: "1rem" }}
           />
           <button type="submit" className="btn btn-primary" style={{ height: 46, padding: "0 22px" }}>
@@ -155,7 +170,7 @@ export default function Terjemah() {
               items={suggests}
               onPick={(w) => {
                 setQ(w);
-                doSearch(w);
+                doSearch(w, dir);
               }}
             />
           </div>
