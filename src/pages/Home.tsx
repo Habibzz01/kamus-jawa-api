@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatedContent, SplitText, GradientText, NumberTicker, FadeUp, Magnetic, SpotlightCard } from "../components/reactbits";
+import SpecularButton from "../components/reactbits/SpecularButton";
 import { api } from "../lib/api";
 
 export default function Home() {
@@ -67,11 +68,25 @@ export default function Home() {
                 background: "var(--surface-card)", color: "var(--ink)", fontSize: "1rem", outline: "none",
               }}
             />
-            <Magnetic>
-              <button type="submit" className="btn btn-primary" style={{ height: "100%" }}>
-                {searching ? "…" : "Cari"}
-              </button>
-            </Magnetic>
+            <SpecularButton
+              type="submit"
+              size="md"
+              radius={8}
+              textColor="#ffffff"
+              lineColor="#ffffff"
+              baseColor="#171717"
+              tint="#ffffff"
+              tintOpacity={0.08}
+              intensity={1}
+              shineSize={14}
+              shineFade={46}
+              thickness={1.2}
+              followMouse
+              proximity={260}
+              disabled={searching}
+            >
+              {searching ? "Mencari…" : "Cari"}
+            </SpecularButton>
           </form>
         </AnimatedContent>
 
