@@ -303,3 +303,10 @@ main, #root { width: 100%; max-width: 100%; }
   .nav-logo { gap: 7px; }
   .nav-mark { width: 30px; height: 30px; font-size: 15px; }
 }
+
+/* Tombol Social Media Developer di nav */
+.devsoc-link { white-space: nowrap; font-size: 0.8rem; padding: 8px 12px; border-radius: 8px; }
+.devsoc-link:hover { border-color: var(--ink); }
+@media (max-width: 1180px) {
+  .devsoc-link { display: none !important; }
+}

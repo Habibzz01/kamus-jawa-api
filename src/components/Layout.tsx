@@ -1,7 +1,7 @@
 import { NavLink, Link, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Sun, Moon, BookOpen, Code, Layers, GraduationCap, ArrowRightLeft } from "./Icon";
+import { Sun, Moon, BookOpen, Code, Layers, GraduationCap, ArrowRightLeft, Share2 } from "./Icon";
 import SpecularButton from "./reactbits/SpecularButton";
 
 const LINKS = [
@@ -68,6 +68,16 @@ export function Nav() {
             );
           })}
         </nav>
+
+        {/* Tombol Social Media Developer — di bawah item Jelajah */}
+        <Link
+          to="/devsoc"
+          className="nav-link devsoc-link"
+          style={{ display: "inline-flex", alignItems: "center", gap: 7, border: "1px solid var(--hairline-strong)", background: "var(--surface-card)" }}
+        >
+          <Share2 size={14} />
+          Social Media Developer
+        </Link>
 
         <SpecularButton
           className="nav-cta"
@@ -160,9 +170,24 @@ export function Nav() {
                   );
                 })}
                 <motion.div
+                  initial={{ opacity: 0, x: -14 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3, duration: 0.28, ease: "easeOut" }}
+                >
+                  <Link
+                    to="/devsoc"
+                    onClick={() => setOpen(false)}
+                    className="nav-link"
+                    style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4 }}
+                  >
+                    <Share2 size={17} />
+                    Social Media Developer
+                  </Link>
+                </motion.div>
+                <motion.div
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.25 }}
+                  transition={{ delay: 0.36, duration: 0.25 }}
                   style={{ padding: "10px 4px 2px" }}
                 >
                   <button
