@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { AnimatedContent, FadeUp, SpotlightCard } from "../components/reactbits";
 import { GraduationCap, BookOpen, Sparkles, Check, ChevronRight, Code, ArrowRightLeft } from "../components/Icon";
+import { usePageMeta } from "../lib/usePageMeta";
 
 interface Tier {
   key: string;
@@ -86,6 +87,7 @@ const CHEAT: [string, string, string, string][] = [
 ];
 
 export default function Tingkatan() {
+  usePageMeta("Tingkatan Belajar — Kamus Jawa API", "Belajar bahasa Jawa terstruktur: Dasar, Menengah, hingga Lanjut.");
   return (
     <div className="container" style={{ paddingTop: 44 }}>
       <AnimatedContent>

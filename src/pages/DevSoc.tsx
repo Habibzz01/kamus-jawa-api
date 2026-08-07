@@ -1,5 +1,6 @@
 import { AnimatedContent, FadeUp, SpotlightCard } from "../components/reactbits";
 import { ArrowUpRight } from "../components/Icon";
+import { usePageMeta } from "../lib/usePageMeta";
 
 // Ikon sosial media — Ko-fi menggunakan ikon "Coffee cup" dan Saweria
 // menggunakan ikon "Heart" (tidak tersedia ikon brand resmi keduanya).
@@ -49,6 +50,7 @@ const PLATFORMS = [
 ];
 
 export default function DevSoc() {
+  usePageMeta("Social Media Developer — Kamus Jawa API", "Ikuti dan dukung karya developer: GitHub, YouTube, Telegram, Ko-fi, Saweria, TikTok.");
   return (
     <div className="container" style={{ paddingTop: 44, maxWidth: 980 }}>
       <AnimatedContent>

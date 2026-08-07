@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AnimatedContent, FadeUp } from "../components/reactbits";
 import DidYouMean from "../components/DidYouMean";
 import Highlight from "../components/Highlight";
 import { ChevronLeft, ChevronRight } from "../components/Icon";
 import { api } from "../lib/api";
+import { usePageMeta } from "../lib/usePageMeta";
 import { useDebounce } from "../lib/useDebounce";
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
 
 export default function Explore() {
+  usePageMeta("Jelajah Kata A–Z — Kamus Jawa API", "Telusuri ribuan entri kamus bahasa Jawa per huruf dengan pencarian realtime.");
+  const [sp, setSp] = useSearchParams();
   const [letter, setLetter] = useState("a");
   const [q, setQ] = useState("");
   const dq = useDebounce(q, 300);
@@ -36,6 +40,22 @@ export default function Explore() {
   }, [letter, dq, page]);
 
   useEffect(() => setPage(1), [letter, dq]);
+
+  // Sinkronkan ?q= dengan URL (untuk SEO & berbagi tautan)
+  useEffect(() => {
+    const qp = sp.get("q");
+    if (qp != null && qp !== q) setQ(qp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    const cur = sp.get("q") || "";
+    if (cur !== q) {
+      const next = new URLSearchParams(sp.toString());
+      if (q) next.set("q", q); else next.delete("q");
+      setSp(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q]);
 
   const rows: any[] = useMemo(() => data?.data || [], [data]);
   const meta = data?.meta;

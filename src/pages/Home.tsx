@@ -6,10 +6,12 @@ import SpecularButton from "../components/reactbits/SpecularButton";
 import DidYouMean from "../components/DidYouMean";
 import Highlight from "../components/Highlight";
 import { api } from "../lib/api";
+import { usePageMeta } from "../lib/usePageMeta";
 import { useDebounce } from "../lib/useDebounce";
 import { getFuse } from "../lib/fuseSearch";
 
 export default function Home() {
+  usePageMeta("Kamus Jawa API — Kamus Lengkap Basa Jawa (Ngoko, Krama, Krama Inggil)", "Kamus Lengkap Basa Jawa dalam REST API dinamis: 3.000+ entri, kata turunan, paribasan, cangkriman, pacelathon, terjemahan dua arah.");
   const [counts, setCounts] = useState<any>(null);
   const [q, setQ] = useState("");
   const dq = useDebounce(q, 300);

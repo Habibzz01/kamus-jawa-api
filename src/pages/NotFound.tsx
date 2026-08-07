@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { AnimatedContent, GradientText } from "../components/reactbits";
 import { ChevronLeft } from "../components/Icon";
+import { usePageMeta } from "../lib/usePageMeta";
 
 export default function NotFound() {
+  usePageMeta("404 — Kamus Jawa API", "Halaman tidak ditemukan.");
   return (
     <div className="container" style={{ paddingTop: 90, textAlign: "center" }}>
       <AnimatedContent>

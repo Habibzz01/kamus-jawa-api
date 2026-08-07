@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { AnimatedContent } from "../components/reactbits";
 import { Play } from "../components/Icon";
 import { api } from "../lib/api";
+import { usePageMeta } from "../lib/usePageMeta";
 
 interface ParamDef { name: string; placeholder?: string; desc?: string; default?: string }
 
@@ -68,6 +69,7 @@ const ENDPOINTS: TesterEndpoint[] = [
 interface HistoryItem { label: string; url: string; status: number; ms: number; body: string; time: string }
 
 export default function Test() {
+  usePageMeta("API Tester — Kamus Jawa API", "Coba langsung semua endpoint Kamus Jawa API dari browser: isi parameter, kirim, dan lihat respons JSON.");
   const [selected, setSelected] = useState<TesterEndpoint>(ENDPOINTS[0]);
   const [values, setValues] = useState<Record<string, string>>({});
   const [result, setResult] = useState<{ status: number; ms: number; body: string } | null>(null);

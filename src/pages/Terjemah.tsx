@@ -4,6 +4,7 @@ import DidYouMean from "../components/DidYouMean";
 import Highlight from "../components/Highlight";
 import { ArrowRightLeft, Search, ChevronRight } from "../components/Icon";
 import { api } from "../lib/api";
+import { usePageMeta } from "../lib/usePageMeta";
 import { useDebounce } from "../lib/useDebounce";
 
 type Dir = "jv-id" | "id-jv";
@@ -18,6 +19,7 @@ const EXAMPLES: { label: string; q: string; dir: Dir }[] = [
 ];
 
 export default function Terjemah() {
+  usePageMeta("Terjemah Jawa–Indonesia — Kamus Jawa API", "Terjemahkan kata dua arah: Jawa ke Indonesia dan Indonesia ke Jawa (ngoko, krama, krama inggil).");
   const [dir, setDir] = useState<Dir>("jv-id");
   const [q, setQ] = useState("");
   const dq = useDebounce(q, 300);

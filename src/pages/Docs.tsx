@@ -1,5 +1,6 @@
 import { AnimatedContent, FadeUp } from "../components/reactbits";
 import { Info } from "../components/Icon";
+import { usePageMeta } from "../lib/usePageMeta";
 
 interface Endpoint {
   method: string;
@@ -149,6 +150,7 @@ function CodeBlock({ code }: { code: string }) {
 }
 
 export default function Docs() {
+  usePageMeta("Dokumentasi API — Kamus Jawa API", "Dokumentasi lengkap endpoint REST API Kamus Jawa: entries, search, translate, proverbs, cangkriman, openapi, dan lainnya.");
   return (
     <div className="container" style={{ paddingTop: 44 }}>
       <AnimatedContent>
