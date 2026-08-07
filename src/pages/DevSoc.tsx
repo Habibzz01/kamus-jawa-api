@@ -35,8 +35,8 @@ const PLATFORMS = [
   },
   {
     name: "Saweria",
-    handle: "saweria.com/xbibzofficial",
-    url: "https://saweria.com/xbibzofficial",
+    handle: "saweria.co/xbibzofficial",
+    url: "https://saweria.co/xbibzofficial",
     desc: "Dukung kreator Indonesia",
     img: "saweria",
   },
