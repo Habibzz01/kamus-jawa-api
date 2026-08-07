@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatedContent, FadeUp } from "../components/reactbits";
+import { Info } from "../components/Icon";
 import { api } from "../lib/api";
 
 interface Endpoint {
@@ -95,7 +96,7 @@ const ENDPOINTS: Endpoint[] = [
   },
   {
     method: "GET", path: "/api/saku", title: "Kamus Saku",
-    desc: "Pasangan ngoko→krama kata umum. Pencarian & paginasi.",
+    desc: "Pasangan ngoko ke krama kata umum. Pencarian & paginasi.",
     params: [
       { name: "q", type: "string", desc: "Cari ngoko/krama/arti." },
       { name: "page", type: "integer", desc: "Halaman (default 1)." },
@@ -104,7 +105,7 @@ const ENDPOINTS: Endpoint[] = [
     example: `curl "https://kamus-api.vercel.app/api/saku?q=abang"`,
   },
   {
-    method: "GET", path: "/api/reverse", title: "Kamus Balik (Indonesia→Jawa)",
+    method: "GET", path: "/api/reverse", title: "Kamus Balik (Indonesia ke Jawa)",
     desc: "Cari padanan ngoko & krama dari kata bahasa Indonesia.",
     params: [{ name: "q", type: "string", desc: "Kata Indonesia (contoh: q=makan)." }],
     example: `curl "https://kamus-api.vercel.app/api/reverse?q=makan"`,
@@ -204,7 +205,7 @@ export default function Docs() {
                 <b style={{ fontSize: "1.05rem", fontFamily: "var(--sans)" }}>{ep.title}</b>
               </div>
               <p style={{ color: "var(--body)", margin: "10px 0 4px" }}>{ep.desc}</p>
-              {ep.note && <p style={{ color: "var(--muted)", fontSize: "0.86rem", margin: "4px 0" }}>ℹ️ {ep.note}</p>}
+              {ep.note && <p style={{ color: "var(--muted)", fontSize: "0.86rem", margin: "4px 0", display: "flex", gap: 6, alignItems: "flex-start" }}><Info size={15} style={{ marginTop: 2, flexShrink: 0 }} />{ep.note}</p>}
               {ep.params && (
                 <div style={{ marginTop: 10 }}>
                   <div style={{ fontSize: "0.8rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Parameter Query</div>

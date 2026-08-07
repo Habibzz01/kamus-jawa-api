@@ -7,6 +7,8 @@ import Home from "./pages/Home";
 import Docs from "./pages/Docs";
 import Test from "./pages/Test";
 import Explore from "./pages/Explore";
+import Terjemah from "./pages/Terjemah";
+import Tingkatan from "./pages/Tingkatan";
 import NotFound from "./pages/NotFound";
 
 const router = createBrowserRouter([
@@ -18,6 +20,8 @@ const router = createBrowserRouter([
       { path: "docs", element: <Docs /> },
       { path: "test", element: <Test /> },
       { path: "explore", element: <Explore /> },
+      { path: "terjemah", element: <Terjemah /> },
+      { path: "tingkatan", element: <Tingkatan /> },
       { path: "*", element: <NotFound /> },
     ],
   },

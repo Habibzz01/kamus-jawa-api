@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { AnimatedContent, FadeUp } from "../components/reactbits";
+import { Play } from "../components/Icon";
 import { api } from "../lib/api";
 
 interface ParamDef { name: string; placeholder?: string; desc?: string; default?: string }
@@ -54,8 +55,8 @@ const ENDPOINTS: TesterEndpoint[] = [
   { id: "dialogs", method: "GET", path: "/api/dialogs", title: "Pacelathon", desc: "Percakapan", params: [], run: () => api.dialogs() },
   { id: "geguritan", method: "GET", path: "/api/geguritan", title: "Geguritan", desc: "Puisi Jawa", params: [], run: () => api.geguritan() },
   { id: "sentences", method: "GET", path: "/api/sentences", title: "Kalimat 3 Tingkat", desc: "Ngoko–krama–krama alus", params: [{ name: "limit", placeholder: "5" }], run: (v) => api.sentences({ limit: v.limit ? Number(v.limit) : undefined }) },
-  { id: "saku", method: "GET", path: "/api/saku", title: "Kamus Saku", desc: "Ngoko→krama", params: [{ name: "q", placeholder: "abang" }], run: (v) => api.saku({ q: v.q }) },
-  { id: "reverse", method: "GET", path: "/api/reverse", title: "Kamus Balik", desc: "Indonesia→Jawa", params: [{ name: "q", placeholder: "makan" }], run: (v) => api.reverse(v.q) },
+  { id: "saku", method: "GET", path: "/api/saku", title: "Kamus Saku", desc: "Ngoko ke krama", params: [{ name: "q", placeholder: "abang" }], run: (v) => api.saku({ q: v.q }) },
+  { id: "reverse", method: "GET", path: "/api/reverse", title: "Kamus Balik", desc: "Indonesia ke Jawa", params: [{ name: "q", placeholder: "makan" }], run: (v) => api.reverse(v.q) },
   { id: "tanya", method: "GET", path: "/api/tanya-jawab", title: "Tanya-Jawab", desc: "30 dialog harian", params: [], run: () => api.tanyaJawab() },
   { id: "extra", method: "GET", path: "/api/extra", title: "Daftar Ekstra", desc: "Ucapan, kerabat, warna…", params: [], run: () => api.extra() },
   { id: "latihan", method: "GET", path: "/api/latihan", title: "Latihan Soal", desc: "160 soal + kunci", params: [], run: () => api.latihan() },
@@ -164,7 +165,7 @@ export default function Test() {
             )}
 
             <button className="btn btn-primary" onClick={run} disabled={loading} style={{ marginTop: 18 }}>
-              {loading ? "Mengirim…" : "▶ Kirim Request"}
+              {loading ? "Mengirim…" : <><Play size={16} /> Kirim Request</>}
             </button>
           </div>
 

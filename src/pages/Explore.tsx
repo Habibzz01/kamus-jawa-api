@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatedContent, FadeUp } from "../components/reactbits";
+import { ChevronLeft, ChevronRight } from "../components/Icon";
 import { api } from "../lib/api";
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
@@ -91,11 +92,11 @@ export default function Explore() {
 
           {meta && meta.pages > 1 && (
             <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 26 }}>
-              <button className="btn" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>← Sebelumnya</button>
+              <button className="btn" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><ChevronLeft size={16} /> Sebelumnya</button>
               <span style={{ alignSelf: "center", color: "var(--body)", fontSize: "0.9rem" }}>
                 Halaman {page} / {meta.pages}
               </span>
-              <button className="btn" disabled={page >= meta.pages} onClick={() => setPage((p) => Math.min(meta.pages, p + 1))}>Berikutnya →</button>
+              <button className="btn" disabled={page >= meta.pages} onClick={() => setPage((p) => Math.min(meta.pages, p + 1))} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>Berikutnya <ChevronRight size={16} /></button>
             </div>
           )}
         </>

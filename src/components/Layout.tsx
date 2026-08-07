@@ -1,12 +1,15 @@
 import { NavLink, Link, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Sun, Moon, BookOpen, Code, Layers, GraduationCap, ArrowRightLeft } from "./Icon";
 
 const LINKS = [
-  { to: "/", label: "Beranda" },
-  { to: "/docs", label: "Dokumentasi" },
-  { to: "/test", label: "API Tester" },
-  { to: "/explore", label: "Jelajah Kata" },
+  { to: "/", label: "Beranda", icon: null },
+  { to: "/docs", label: "Dokumentasi", icon: BookOpen },
+  { to: "/test", label: "Tester", icon: Code },
+  { to: "/terjemah", label: "Terjemah", icon: ArrowRightLeft },
+  { to: "/tingkatan", label: "Tingkatan", icon: GraduationCap },
+  { to: "/explore", label: "Jelajah", icon: Layers },
 ];
 
 function useTheme() {
@@ -49,16 +52,20 @@ export function Nav() {
 
         {/* Nav desktop */}
         <nav className="nav-desktop">
-          {LINKS.map((l) => (
-            <NavLink
-              key={l.to}
-              to={l.to}
-              end={l.to === "/"}
-              className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
-            >
-              {l.label}
-            </NavLink>
-          ))}
+          {LINKS.map((l) => {
+            const Ico = l.icon;
+            return (
+              <NavLink
+                key={l.to}
+                to={l.to}
+                end={l.to === "/"}
+                className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+              >
+                {Ico && <Ico size={15} style={{ verticalAlign: "-2px", marginRight: 5 }} />}
+                {l.label}
+              </NavLink>
+            );
+          })}
         </nav>
 
         <button
@@ -66,10 +73,10 @@ export function Nav() {
           onClick={() => window.open("/api/meta", "_blank")}
           style={{ whiteSpace: "nowrap" }}
         >
-          GET /api
+          API
         </button>
 
-        {/* Toggle tema */}
+        {/* Toggle tema — ikon SVG, tanpa emoji */}
         <motion.button
           className="theme-toggle"
           onClick={toggle}
@@ -84,9 +91,9 @@ export function Nav() {
               animate={{ rotate: 0, opacity: 1, scale: 1 }}
               exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
               transition={{ duration: 0.22 }}
-              style={{ display: "inline-block" }}
+              style={{ display: "inline-flex" }}
             >
-              {theme === "dark" ? "☀️" : "🌙"}
+              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
             </motion.span>
           </AnimatePresence>
         </motion.button>
@@ -117,28 +124,32 @@ export function Nav() {
           >
             <div className="nav-mobile-inner">
               <div className="container" style={{ paddingTop: 8, paddingBottom: 12 }}>
-                {LINKS.map((l, i) => (
-                  <motion.div
-                    key={l.to}
-                    initial={{ opacity: 0, x: -14 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 + i * 0.06, duration: 0.28, ease: "easeOut" }}
-                  >
-                    <NavLink
-                      to={l.to}
-                      end={l.to === "/"}
-                      onClick={() => setOpen(false)}
-                      className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
-                      style={{ display: "block" }}
+                {LINKS.map((l, i) => {
+                  const Ico = l.icon;
+                  return (
+                    <motion.div
+                      key={l.to}
+                      initial={{ opacity: 0, x: -14 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.05 + i * 0.05, duration: 0.28, ease: "easeOut" }}
                     >
-                      {l.label}
-                    </NavLink>
-                  </motion.div>
-                ))}
+                      <NavLink
+                        to={l.to}
+                        end={l.to === "/"}
+                        onClick={() => setOpen(false)}
+                        className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+                        style={{ display: "flex", alignItems: "center", gap: 10 }}
+                      >
+                        {Ico && <Ico size={17} />}
+                        {l.label}
+                      </NavLink>
+                    </motion.div>
+                  );
+                })}
                 <motion.div
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.28, duration: 0.25 }}
+                  transition={{ delay: 0.3, duration: 0.25 }}
                   style={{ padding: "10px 4px 2px" }}
                 >
                   <button
@@ -149,7 +160,7 @@ export function Nav() {
                     }}
                     style={{ width: "100%", justifyContent: "center" }}
                   >
-                    GET /api
+                    API
                   </button>
                 </motion.div>
               </div>

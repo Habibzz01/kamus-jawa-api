@@ -50,5 +50,7 @@ export const api = {
   latihan: () => get<any>("/api/latihan"),
   rencana: () => get<any>("/api/rencana"),
   unggahUngguh: () => get<any>("/api/unggah-ungguh"),
+  translate: (q: string, dir: "jv-id" | "id-jv" = "jv-id", limit?: number) =>
+    get<any>("/api/translate", { q, dir, limit }),
   openapi: () => get<any>("/api/openapi"),
 };

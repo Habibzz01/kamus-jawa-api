@@ -69,7 +69,7 @@ const H: Record<string, Handler> = {
         "/api", "/api/meta", "/api/entries", "/api/search", "/api/turunan", "/api/thematic",
         "/api/proverbs", "/api/cangkriman", "/api/dialogs", "/api/geguritan", "/api/sentences",
         "/api/saku", "/api/reverse", "/api/tanya-jawab", "/api/extra", "/api/latihan",
-        "/api/rencana", "/api/unggah-ungguh", "/api/openapi",
+        "/api/rencana", "/api/unggah-ungguh", "/api/translate", "/api/openapi",
       ],
     };
   },
@@ -197,6 +197,32 @@ const H: Record<string, Handler> = {
   macapat: () => ({ data: KAMUS.macapat || [] }),
   "tembang-dolanan": () => ({ data: KAMUS.tembang_dolanan || [] }),
   pelafalan: () => ({ data: KAMUS.pelafalan || [] }),
+
+  // GET /api/translate?q=&dir=jv-id|id-jv
+  translate: (req) => {
+    const q = (qs(req, "q") || "").trim();
+    const dir = (qs(req, "dir") || "jv-id").toLowerCase();
+    const limit = Math.min(Math.max(num(req, "limit", 10), 1), 50);
+    if (!q) return { data: [], total: 0, direction: dir, query: q };
+    const needle = q.toLowerCase();
+    if (dir === "id-jv") {
+      // Indonesia → Jawa (kamus balik)
+      const rows = (KAMUS.reverse || []).map((r: any) => ({ indonesia: r.id, ngoko: r.ngoko, krama: r.krama }));
+      const list = rows.filter((r: any) =>
+        [r.indonesia, r.ngoko, r.krama].some((v) => String(v).toLowerCase().includes(needle))
+      ).slice(0, limit);
+      return { data: list, total: list.length, direction: dir, query: q };
+    }
+    // Jawa → Indonesia (kamus inti)
+    const list = KAMUS.entries.filter((e: any) =>
+      [e.word, e.meaning, e.krama, e.krama_inggil].some((v) => v && String(v).toLowerCase().includes(needle))
+    ).slice(0, limit).map((e: any) => ({
+      jawa: e.word, indonesia: e.meaning, level: e.level,
+      krama: e.krama || null, krama_inggil: e.krama_inggil || null,
+      example: e.example || null,
+    }));
+    return { data: list, total: list.length, direction: dir, query: q };
+  },
 
   // GET /api/openapi
   openapi: () => {
