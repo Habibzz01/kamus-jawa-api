@@ -32,7 +32,7 @@ async function get<T>(path: string, params?: Record<string, string | number | un
 export const api = {
   meta: () => get<any>("/api/meta"),
   overview: () => get<any>("/api"),
-  entries: (p?: { letter?: string; q?: string; level?: string; page?: number; limit?: number }) =>
+  entries: (p?: { letter?: string; q?: string; level?: string; page?: number; limit?: number; all?: number }) =>
     get<any>("/api/entries", { ...p }),
   search: (q: string, p?: { level?: string; page?: number; limit?: number }) =>
     get<any>("/api/search", { q, ...p }),

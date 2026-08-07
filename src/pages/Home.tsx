@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { AnimatedContent, SplitText, GradientText, NumberTicker, FadeUp, Magnetic, SpotlightCard } from "../components/reactbits";
 import SpecularButton from "../components/reactbits/SpecularButton";
 import DidYouMean from "../components/DidYouMean";
+import Highlight from "../components/Highlight";
 import { api } from "../lib/api";
 import { useDebounce } from "../lib/useDebounce";
+import { getFuse } from "../lib/fuseSearch";
 
 export default function Home() {
   const [counts, setCounts] = useState<any>(null);
@@ -16,22 +18,32 @@ export default function Home() {
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
   const [suggests, setSuggests] = useState<string[]>([]);
+  const [total, setTotal] = useState(0);
+  const [fuseReady, setFuseReady] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     api.meta().then((m) => setCounts(m.data?.counts)).catch(() => {});
   }, []);
 
-  async function runSearch(term: string) {
-    const query = term.trim();
-    if (!query) return;
-    const id = ++reqId.current;
-    setSearching(true);
-    setSearched(true);
+  // Muat indeks fuse.js sekali (fuzzy search sisi klien)
+  useEffect(() => {
+    let on = true;
+    getFuse()
+      .then(() => on && setFuseReady(true))
+      .catch(() => on && setFuseReady(false));
+    return () => {
+      on = false;
+    };
+  }, []);
+
+  // Fallback: pencarian server (dipakai sebelum indeks fuse siap)
+  async function runServerSearch(query: string, id: number) {
     try {
       const r = await api.search(query, { limit: 6 });
       if (id !== reqId.current) return;
       setResults(r.data || []);
+      setTotal((r.meta as any)?.total ?? (r.data || []).length);
       if ((r.data || []).length === 0) {
         try {
           const sug = await api.suggest(query);
@@ -53,19 +65,36 @@ export default function Home() {
     }
   }
 
-  // Pencarian realtime saat user mengetik (debounce 300ms)
+  // Pencarian realtime saat user mengetik (debounce 300ms) — fuse fuzzy bila siap
   useEffect(() => {
-    if (dq.trim()) {
-      runSearch(dq);
-    } else {
-      reqId.current++;
+    const query = dq.trim();
+    const id = ++reqId.current;
+    if (!query) {
       setResults([]);
       setSuggests([]);
+      setTotal(0);
       setSearched(false);
       setSearching(false);
+      return;
+    }
+    setSearching(true);
+    setSearched(true);
+    if (fuseReady) {
+      getFuse()
+        .then((f) => {
+          if (id !== reqId.current) return;
+          const all = f.search(query, { limit: 60 });
+          setTotal(all.length);
+          setResults(all.slice(0, 6).map((x: any) => x.item));
+          setSuggests([]);
+          setSearching(false);
+        })
+        .catch(() => runServerSearch(query, id));
+    } else {
+      runServerSearch(query, id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dq]);
+  }, [dq, fuseReady]);
 
   const stats = [
     { label: "Entri kamus A–Z", value: counts?.entries ?? 3029 },
@@ -88,7 +117,7 @@ export default function Home() {
 
         {/* Quick search */}
         <AnimatedContent delay={0.42}>
-          <form onSubmit={(e) => { e.preventDefault(); runSearch(q); }} style={{ display: "flex", gap: 10, maxWidth: 560, margin: "0 auto 20px", width: "100%" }}>
+          <form onSubmit={(e) => { e.preventDefault(); if (fuseReady) { const id = ++reqId.current; getFuse().then((f) => { if (id !== reqId.current) return; const all = f.search(q.trim(), { limit: 60 }); setTotal(all.length); setResults(all.slice(0, 6).map((x: any) => x.item)); setSuggests([]); setSearched(true); setSearching(false); }); } else { runServerSearch(q.trim(), ++reqId.current); } }} style={{ display: "flex", gap: 10, maxWidth: 560, margin: "0 auto 20px", width: "100%" }}>
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -122,7 +151,12 @@ export default function Home() {
 
         {searched && (
           <div style={{ maxWidth: 560, margin: "0 auto", textAlign: "left" }}>
-            {results.length === 0 ? (
+            {!searching && total > 0 && q.trim() && (
+              <div style={{ marginBottom: 10, color: "var(--muted)", fontSize: "0.85rem" }}>
+                {total} hasil untuk &quot;{q.trim()}&quot;
+              </div>
+            )}
+            {results.length === 0 && !searching ? (
               <div>
                 <p style={{ color: "var(--muted)", fontSize: "0.9rem" }}>Tidak ditemukan. Coba kata lain.</p>
                 {searched && (
@@ -130,7 +164,21 @@ export default function Home() {
                     items={suggests}
                     onPick={(w) => {
                       setQ(w);
-                      runSearch(w);
+                      const id = ++reqId.current;
+                      setSearching(true);
+                      setSearched(true);
+                      if (fuseReady) {
+                        getFuse().then((f) => {
+                          if (id !== reqId.current) return;
+                          const all = f.search(w.trim(), { limit: 60 });
+                          setTotal(all.length);
+                          setResults(all.slice(0, 6).map((x: any) => x.item));
+                          setSuggests([]);
+                          setSearching(false);
+                        });
+                      } else {
+                        runServerSearch(w.trim(), id);
+                      }
                     }}
                   />
                 )}
@@ -139,9 +187,9 @@ export default function Home() {
               results.map((e, i) => (
                 <FadeUp key={e.id} delay={i * 0.05}>
                   <div className="card" style={{ padding: "10px 16px", marginBottom: 8, display: "flex", gap: 12, alignItems: "baseline" }}>
-                    <b style={{ color: "var(--ink)", fontFamily: "var(--sans)", fontSize: "1.05rem", minWidth: 110 }}>{e.word}</b>
+                    <b style={{ color: "var(--ink)", fontFamily: "var(--sans)", fontSize: "1.05rem", minWidth: 110 }}><Highlight text={e.word} query={q} /></b>
                     <span className="badge badge-muted">{e.level}</span>
-                    <span style={{ color: "var(--body)", fontSize: "0.9rem" }}>— {e.meaning}</span>
+                    <span style={{ color: "var(--body)", fontSize: "0.9rem" }}>— <Highlight text={e.meaning} query={q} /></span>
                   </div>
                 </FadeUp>
               ))

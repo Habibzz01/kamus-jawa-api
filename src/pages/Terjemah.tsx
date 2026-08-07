@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatedContent, FadeUp } from "../components/reactbits";
 import DidYouMean from "../components/DidYouMean";
+import Highlight from "../components/Highlight";
 import { ArrowRightLeft, Search, ChevronRight } from "../components/Icon";
 import { api } from "../lib/api";
 import { useDebounce } from "../lib/useDebounce";
@@ -193,9 +194,9 @@ export default function Terjemah() {
                   <div className="card" style={{ padding: "16px 18px" }}>
                     {dir === "jv-id" ? (
                       <div style={{ display: "flex", gap: 14, alignItems: "baseline", flexWrap: "wrap" }}>
-                        <b style={{ fontFamily: "var(--sans)", fontSize: "1.15rem", color: "var(--ink)" }}>{item.jawa}</b>
+                        <b style={{ fontFamily: "var(--sans)", fontSize: "1.15rem", color: "var(--ink)" }}><Highlight text={item.jawa} query={dq} /></b>
                         <ChevronRight size={15} style={{ color: "var(--muted)", alignSelf: "center" }} />
-                        <span style={{ color: "var(--body)", fontSize: "1rem" }}>{item.indonesia}</span>
+                        <span style={{ color: "var(--body)", fontSize: "1rem" }}><Highlight text={item.indonesia} query={dq} /></span>
                         <span className="badge badge-muted" style={{ textTransform: "none", letterSpacing: 0, fontSize: "0.72rem" }}>{item.level}</span>
                         {(item.krama || item.krama_inggil) && (
                           <span style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -206,9 +207,9 @@ export default function Terjemah() {
                       </div>
                     ) : (
                       <div style={{ display: "flex", gap: 14, alignItems: "baseline", flexWrap: "wrap" }}>
-                        <b style={{ fontFamily: "var(--sans)", fontSize: "1.15rem", color: "var(--ink)" }}>{item.indonesia}</b>
+                        <b style={{ fontFamily: "var(--sans)", fontSize: "1.15rem", color: "var(--ink)" }}><Highlight text={item.indonesia} query={dq} /></b>
                         <ChevronRight size={15} style={{ color: "var(--muted)", alignSelf: "center" }} />
-                        <span style={{ color: "var(--body)", fontSize: "1rem" }}>{item.ngoko}</span>
+                        <span style={{ color: "var(--body)", fontSize: "1rem" }}><Highlight text={item.ngoko} query={dq} /></span>
                         <span className="badge badge-green" style={{ textTransform: "none", letterSpacing: 0, fontSize: "0.72rem" }}>krama: {item.krama}</span>
                       </div>
                     )}

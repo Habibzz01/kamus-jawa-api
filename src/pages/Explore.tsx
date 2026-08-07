@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatedContent, FadeUp } from "../components/reactbits";
 import DidYouMean from "../components/DidYouMean";
+import Highlight from "../components/Highlight";
 import { ChevronLeft, ChevronRight } from "../components/Icon";
 import { api } from "../lib/api";
 import { useDebounce } from "../lib/useDebounce";
@@ -97,10 +98,10 @@ export default function Explore() {
               <FadeUp key={e.id} delay={Math.min(i, 8) * 0.04}>
                 <div className="card" style={{ padding: "16px 18px" }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "baseline" }}>
-                    <b style={{ fontFamily: "var(--sans)", fontSize: "1.1rem", color: "var(--ink)" }}>{e.word}</b>
+                    <b style={{ fontFamily: "var(--sans)", fontSize: "1.1rem", color: "var(--ink)" }}><Highlight text={e.word} query={q} /></b>
                     <span className="badge badge-muted">{e.level}</span>
                   </div>
-                  <div style={{ color: "var(--body)", fontSize: "0.9rem", marginTop: 4 }}>{e.meaning}</div>
+                  <div style={{ color: "var(--body)", fontSize: "0.9rem", marginTop: 4 }}><Highlight text={e.meaning} query={q} /></div>
                   {(e.krama || e.krama_inggil) && (
                     <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
                       {e.krama && <span className="badge badge-green">krama: {e.krama}</span>}
