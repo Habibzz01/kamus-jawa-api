@@ -45,7 +45,7 @@ type Handler = (req: VercelRequest) => any;
 
 function paginate(list: any[], req: VercelRequest) {
   const page = num(req, "page", 1);
-  const limit = num(req, "limit", 50);
+  const limit = Math.min(num(req, "limit", 50), 500); // cap 500
   const total = list.length;
   const pages = Math.ceil(total / limit) || 1;
   const start = (page - 1) * limit;
