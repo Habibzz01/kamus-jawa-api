@@ -1,9 +1,8 @@
 import { AnimatedContent, FadeUp, SpotlightCard } from "../components/reactbits";
 import { ArrowUpRight } from "../components/Icon";
 
-// Ikon sosial media dari Flaticon (https://www.flaticon.com)
-// Ko-fi menggunakan ikon "Coffee cup" dan Saweria menggunakan ikon "Heart"
-// karena tidak tersedia ikon brand resmi keduanya di Flaticon.
+// Ikon sosial media — Ko-fi menggunakan ikon "Coffee cup" dan Saweria
+// menggunakan ikon "Heart" (tidak tersedia ikon brand resmi keduanya).
 const PLATFORMS = [
   {
     name: "GitHub",
@@ -117,20 +116,6 @@ export default function DevSoc() {
           </FadeUp>
         ))}
       </div>
-
-      {/* Atribusi Flaticon (sesuai lisensi) */}
-      <AnimatedContent>
-        <p
-          style={{
-            color: "var(--muted)", fontSize: "0.78rem", marginTop: 26, textAlign: "center",
-          }}
-        >
-          Ikon oleh{" "}
-          <a href="https://www.flaticon.com" target="_blank" rel="noreferrer" style={{ color: "var(--text-link)" }}>
-            Flaticon
-          </a>
-        </p>
-      </AnimatedContent>
     </div>
   );
 }
