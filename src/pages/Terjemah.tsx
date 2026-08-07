@@ -215,7 +215,7 @@ export default function Terjemah() {
                     )}
                     {item.example && (
                       <div style={{ marginTop: 8, color: "var(--muted)", fontSize: "0.85rem", fontStyle: "italic" }}>
-                        {item.example.jv}
+                        {item.example?.jv}
                         {item.example.id && <span style={{ color: "var(--muted)" }}> — {item.example.id}</span>}
                       </div>
                     )}

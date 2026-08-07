@@ -2,6 +2,7 @@ import { NavLink, Link, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Sun, Moon, BookOpen, Code, Layers, GraduationCap, ArrowRightLeft, Share2 } from "./Icon";
+import ErrorBoundary from "./ErrorBoundary";
 import SpecularButton from "./reactbits/SpecularButton";
 
 const LINKS = [
@@ -240,7 +241,9 @@ export function Shell() {
     <>
       <Nav />
       <main style={{ minHeight: "70vh" }}>
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
       <Footer />
     </>
