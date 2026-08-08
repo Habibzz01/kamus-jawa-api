@@ -293,8 +293,9 @@ const H: Record<string, Handler> = {
     return { data, total: data.length, query: q, direction: dir };
   },
 
-  // GET /api/status — health check server (snapshot)
-  status: () => {
+  // GET /api/status — health check server (snapshot). ?simulate=1 memaksa issue (uji)
+  status: (req) => {
+    const simulate = qs(req, "simulate") === "1";
     const t0 = Date.now();
     const entries = KAMUS.entries || [];
     const sample = entries.find((e: any) => e.word === "mangan");
@@ -308,6 +309,15 @@ const H: Record<string, Handler> = {
       mk("translate", (KAMUS.reverse || []).length > 0, (KAMUS.reverse || []).length + " kata balik", "Data kamus balik kosong"),
       mk("thematic", (KAMUS.thematic || []).length > 0, (KAMUS.thematic || []).length + " tabel", "Data tematik kosong"),
     ];
+    if (simulate) {
+      for (const c of checks) {
+        if (c.name === "search") {
+          c.ok = false;
+          c.detail = "0 entri (simulasi)";
+          c.message = "Simulasi uji: entri 'mangan' sengaja dianggap tidak ditemukan";
+        }
+      }
+    }
     const latencyMs = Date.now() - t0;
     const failed = checks.filter((c) => !c.ok);
     const allOk = failed.length === 0;
