@@ -1,7 +1,7 @@
 import { NavLink, Link, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Sun, Moon, BookOpen, Code, Layers, GraduationCap, ArrowRightLeft, Share2 } from "./Icon";
+import { Sun, Moon, BookOpen, Code, Layers, GraduationCap, ArrowRightLeft, Share2, Activity } from "./Icon";
 import ErrorBoundary from "./ErrorBoundary";
 import SpecularButton from "./reactbits/SpecularButton";
 
@@ -12,6 +12,7 @@ const LINKS = [
   { to: "/terjemah", label: "Terjemah", icon: ArrowRightLeft },
   { to: "/tingkatan", label: "Tingkatan", icon: GraduationCap },
   { to: "/explore", label: "Jelajah", icon: Layers },
+  { to: "/status", label: "Status", icon: Activity },
 ];
 
 function useTheme() {

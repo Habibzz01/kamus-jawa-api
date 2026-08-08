@@ -87,7 +87,7 @@ const H: Record<string, Handler> = {
         "/api", "/api/meta", "/api/entries", "/api/search", "/api/turunan", "/api/thematic",
         "/api/proverbs", "/api/cangkriman", "/api/dialogs", "/api/geguritan", "/api/sentences",
         "/api/saku", "/api/reverse", "/api/tanya-jawab", "/api/extra", "/api/latihan",
-        "/api/rencana", "/api/unggah-ungguh", "/api/translate", "/api/suggest", "/api/openapi",
+        "/api/rencana", "/api/unggah-ungguh", "/api/translate", "/api/suggest", "/api/status", "/api/openapi",
       ],
     };
   },
@@ -291,6 +291,35 @@ const H: Record<string, Handler> = {
     scored.sort((a, b) => a.d - b.d || a.w.localeCompare(b.w));
     const data = scored.slice(0, limit).map((s) => s.w);
     return { data, total: data.length, query: q, direction: dir };
+  },
+
+  // GET /api/status — health check server (snapshot)
+  status: () => {
+    const t0 = Date.now();
+    const entries = KAMUS.entries || [];
+    const sample = entries.find((e: any) => e.word === "mangan");
+    const checks = [
+      { name: "entries", ok: entries.length > 0, detail: entries.length + " entri" },
+      { name: "search", ok: !!sample, detail: sample ? "sample 'mangan' OK" : "sample gagal" },
+      { name: "turunan", ok: (KAMUS.turunan || []).length > 0, detail: (KAMUS.turunan || []).length + " kata" },
+      { name: "proverbs", ok: ((KAMUS.proverbs || {}).paribasan || []).length > 0, detail: ((KAMUS.proverbs || {}).paribasan || []).length + " paribasan" },
+      { name: "translate", ok: (KAMUS.reverse || []).length > 0, detail: (KAMUS.reverse || []).length + " kata balik" },
+      { name: "thematic", ok: (KAMUS.thematic || []).length > 0, detail: (KAMUS.thematic || []).length + " tabel" },
+    ];
+    const latencyMs = Date.now() - t0;
+    const allOk = checks.every((c) => c.ok);
+    return {
+      data: {
+        status: allOk ? "operational" : "degraded",
+        serverTime: new Date().toISOString(),
+        version: KAMUS.meta?.version || "2.0.0",
+        region: process.env.VERCEL_REGION || "unknown",
+        runtime: "vercel-serverless",
+        latencyMs,
+        counts: KAMUS.meta?.counts || {},
+        checks,
+      },
+    };
   },
 
   // GET /api/openapi

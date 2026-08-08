@@ -193,3 +193,96 @@ export const Share2 = (p: P) =>
       <path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98" />
     </>
   ));
+
+/* ============================================================
+   STATUS / SISTEM ICONS
+   ============================================================ */
+export const Activity = (p: P) =>
+  base(p, <path d="M22 12h-4l-3 9L9 3l-3 9H2" />);
+
+export const RefreshCw = (p: P) =>
+  base(p, (
+    <>
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M3 21v-5h5" />
+    </>
+  ));
+
+export const Pause = (p: P) =>
+  base(p, (
+    <>
+      <rect x="6" y="4" width="4" height="16" rx="1" />
+      <rect x="14" y="4" width="4" height="16" rx="1" />
+    </>
+  ));
+
+export const Cpu = (p: P) =>
+  base(p, (
+    <>
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+      <rect x="9" y="9" width="6" height="6" />
+      <path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2" />
+    </>
+  ));
+
+export const Clock = (p: P) =>
+  base(p, (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </>
+  ));
+
+export const Server = (p: P) =>
+  base(p, (
+    <>
+      <rect x="2" y="2" width="20" height="8" rx="2" />
+      <rect x="2" y="14" width="20" height="8" rx="2" />
+      <path d="M6 6h.01M6 18h.01" />
+    </>
+  ));
+
+export const Wifi = (p: P) =>
+  base(p, (
+    <>
+      <path d="M5 13a10 10 0 0 1 14 0" />
+      <path d="M8.5 16.5a5 5 0 0 1 7 0" />
+      <path d="M2 8.82a15 15 0 0 1 20 0" />
+      <path d="M12 20h.01" />
+    </>
+  ));
+
+export const Database = (p: P) =>
+  base(p, (
+    <>
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d="M3 5v14a9 3 0 0 0 18 0V5" />
+      <path d="M3 12a9 3 0 0 0 18 0" />
+    </>
+  ));
+
+export const BarChart3 = (p: P) =>
+  base(p, (
+    <>
+      <path d="M3 3v18h18" />
+      <path d="M18 17V9M13 17V5M8 17v-3" />
+    </>
+  ));
+
+export const ShieldCheck = (p: P) =>
+  base(p, (
+    <>
+      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+      <path d="m9 12 2 2 4-4" />
+    </>
+  ));
+
+export const Radio = (p: P) =>
+  base(p, (
+    <>
+      <circle cx="12" cy="12" r="2" />
+      <path d="M4.93 19.07a10 10 0 0 1 0-14.14M7.76 16.24a6 6 0 0 1 0-8.49M16.24 7.76a6 6 0 0 1 0 8.49M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </>
+  ));

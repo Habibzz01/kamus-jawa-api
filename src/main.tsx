@@ -10,6 +10,7 @@ import Explore from "./pages/Explore";
 import Terjemah from "./pages/Terjemah";
 import Tingkatan from "./pages/Tingkatan";
 import DevSoc from "./pages/DevSoc";
+import Status from "./pages/Status";
 import NotFound from "./pages/NotFound";
 
 const router = createBrowserRouter([
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
       { path: "terjemah", element: <Terjemah /> },
       { path: "tingkatan", element: <Tingkatan /> },
       { path: "devsoc", element: <DevSoc /> },
+      { path: "status", element: <Status /> },
       { path: "*", element: <NotFound /> },
     ],
   },
