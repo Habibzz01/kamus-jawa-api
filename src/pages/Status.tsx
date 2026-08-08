@@ -3,7 +3,7 @@ import { AnimatedContent, FadeUp, NumberTicker } from "../components/reactbits";
 import { usePageMeta } from "../lib/usePageMeta";
 import {
   Activity, RefreshCw, Pause, Play, Cpu, Clock, Server, Database, BarChart3,
-  ShieldCheck, Radio, Wifi, Check,
+  ShieldCheck, Radio, Wifi, Check, AlertTriangle, XCircle,
 } from "../components/Icon";
 import { api } from "../lib/api";
 
@@ -19,10 +19,18 @@ const TARGETS: { path: string; name: string }[] = [
   { path: "/api/openapi", name: "OpenAPI" },
 ];
 
-interface Probe { name: string; path: string; ok: boolean; latency: number; checkedAt: number }
+interface Probe { name: string; path: string; ok: boolean; latency: number; code?: number; errMsg?: string; checkedAt: number }
 interface LogEntry { time: string; label: string; ok: boolean; latency: number }
+interface Issue {
+  id: string;
+  source: string;
+  title: string;
+  detail: string;
+  code?: string;
+  started: string;
+  resolved?: string;
+}
 
-const STORE_KEY = "kamus-status-hist";
 const MAX_SERIES = 60;
 
 function latencyColor(ms: number) {
@@ -55,7 +63,7 @@ function Spark({ data, color }: { data: number[]; color: string }) {
 }
 
 export default function Status() {
-  usePageMeta("Status Server — Kamus Jawa API", "Pemantauan status server Kamus Jawa API secara realtime: uptime, latensi per endpoint, log, dan kesehatan sistem.");
+  usePageMeta("Status Server — Kamus Jawa API", "Pemantauan status server Kamus Jawa API secara realtime: uptime, latensi, issue, log, dan kesehatan sistem.");
 
   const [auto, setAuto] = useState(true);
   const [intervalMs, setIntervalMs] = useState(3000);
@@ -67,18 +75,45 @@ export default function Status() {
   const [series, setSeries] = useState<number[]>([]);
   const [perEndpoint, setPerEndpoint] = useState<Record<string, number[]>>({});
   const [log, setLog] = useState<LogEntry[]>([]);
+  const [issues, setIssues] = useState<Issue[]>([]);
 
   const [totalChecks, setTotalChecks] = useState(0);
   const [okChecks, setOkChecks] = useState(0);
 
   const mounted = useRef(true);
+  const issuesRef = useRef<Issue[]>([]);
+  issuesRef.current = issues;
+
+  /* Deteksi timezone klien */
+  const [clientTz, setClientTz] = useState("—");
+  useEffect(() => {
+    try {
+      setClientTz(Intl.DateTimeFormat().resolvedOptions().timeZone || "—");
+    } catch {
+      setClientTz("—");
+    }
+  }, []);
+
+  const nowLocal = () => new Date().toLocaleTimeString("id-ID", { hour12: false });
+
+  /* Kelola issue (muncul saat gagal, hilang saat pulih) */
+  function upsertIssue(src: string, title: string, detail: string, code?: string) {
+    const id = src;
+    setIssues((prev) => {
+      const ex = prev.find((i) => i.id === id);
+      if (ex) return prev;
+      return [{ id, source: src, title, detail, code, started: nowLocal() }, ...prev].slice(0, 12);
+    });
+  }
+  function resolveIssue(src: string) {
+    setIssues((prev) => prev.map((i) => (i.id === src && !i.resolved ? { ...i, resolved: nowLocal() } : i)));
+  }
 
   async function tick() {
     setProbing(true);
-    const t = Date.now();
-    const stamp = new Date().toLocaleTimeString("id-ID");
+    const stamp = nowLocal();
 
-    // 1) snapshot server (health check internal)
+    // 1) snapshot server (health check internal + detail error)
     let srv: any = null;
     try {
       const r = await api.status();
@@ -88,17 +123,34 @@ export default function Status() {
     }
     setServer(srv);
 
-    // 2) probe endpoint dari browser (latensi nyata)
+    if (srv && srv.status !== "operational") {
+      const detail = (srv.issues || []).map((x: any) => `${x.check}: ${x.message}`).join(" · ") || srv.message;
+      upsertIssue("server", "Server tidak sehat", detail, "500");
+    } else if (srv) {
+      resolveIssue("server");
+    } else {
+      upsertIssue("server", "Server tidak merespons", "Permintaan ke /api/status gagal — server mungkin down atau timeout.", "—");
+    }
+
+    // 2) probe endpoint dari browser (latensi nyata + detail error)
     const results = await Promise.all(
       TARGETS.map(async (tg) => {
         const t0 = performance.now();
+        let probe: Probe;
         try {
           const res = await fetch(tg.path);
           const ok = res.ok;
-          return { name: tg.name, path: tg.path, ok, latency: Math.round(performance.now() - t0), checkedAt: t } as Probe;
-        } catch {
-          return { name: tg.name, path: tg.path, ok: false, latency: -1, checkedAt: t } as Probe;
+          probe = { name: tg.name, path: tg.path, ok, latency: Math.round(performance.now() - t0), code: res.status, checkedAt: Date.now() };
+          if (ok) {
+            resolveIssue(tg.path);
+          } else {
+            upsertIssue(tg.path, `Endpoint ${tg.name} bermasalah`, `HTTP ${res.status} pada ${tg.path}`, String(res.status));
+          }
+        } catch (e: any) {
+          probe = { name: tg.name, path: tg.path, ok: false, latency: -1, errMsg: e?.message || "Network error", checkedAt: Date.now() };
+          upsertIssue(tg.path, `Endpoint ${tg.name} gagal`, (e?.message || "Network error") + ` pada ${tg.path}`, "NET");
         }
+        return probe;
       })
     );
     setProbes(results);
@@ -108,9 +160,9 @@ export default function Status() {
     setTotalChecks((v) => v + results.length);
 
     // series latensi rata-rata
-    const avg = results.filter((r) => r.ok && r.latency >= 0).reduce((a, r) => a + r.latency, 0) /
-      Math.max(1, results.filter((r) => r.ok).length);
-    setSeries((prev) => [...prev, Math.round(avg)].slice(-MAX_SERIES));
+    const okLat = results.filter((r) => r.ok && r.latency >= 0);
+    const avg = okLat.length ? Math.round(okLat.reduce((a, r) => a + r.latency, 0) / okLat.length) : 0;
+    setSeries((prev) => [...prev, avg].slice(-MAX_SERIES));
 
     // per-endpoint history
     setPerEndpoint((prev) => {
@@ -121,11 +173,14 @@ export default function Status() {
       return next;
     });
 
-    // log streaming
+    // log streaming (hanya yang gagal + ringkasan per siklus)
     const entries: LogEntry[] = [];
     if (srv) entries.push({ time: stamp, label: "Server health", ok: srv.status === "operational", latency: srv.latencyMs });
     for (const r of results) {
-      entries.push({ time: stamp, label: r.name, ok: r.ok, latency: r.latency });
+      if (!r.ok) entries.push({ time: stamp, label: r.name, ok: false, latency: r.latency });
+    }
+    if (entries.length === 0) {
+      entries.push({ time: stamp, label: "Semua endpoint OK", ok: true, latency: avg });
     }
     setLog((prev) => [...entries, ...prev].slice(0, 30));
 
@@ -151,16 +206,15 @@ export default function Status() {
 
   const uptime = totalChecks ? Math.round((okChecks / totalChecks) * 1000) / 10 : 100;
   const avgLatency = series.length ? Math.round(series.reduce((a, b) => a + b, 0) / series.length) : 0;
-  const overall = probes.length
-    ? probes.every((p) => p.ok) && server
+  const activeIssues = issues.filter((i) => !i.resolved);
+  const overall = activeIssues.length
+    ? "degraded"
+    : probes.length
       ? "operational"
-      : probes.some((p) => p.ok)
-        ? "degraded"
-        : "down"
-    : "checking";
+      : "checking";
 
   const overallColor = overall === "operational" ? "var(--ok)" : overall === "degraded" ? "var(--amber, #c98f3f)" : "var(--err)";
-  const overallLabel = overall === "operational" ? "Operasional" : overall === "degraded" ? "Gangguan Sebagian" : overall === "down" ? "Tidak Tersedia" : "Memeriksa…";
+  const overallLabel = overall === "operational" ? "Operasional" : overall === "degraded" ? "Ada Masalah" : "Memeriksa…";
 
   return (
     <div className="container" style={{ paddingTop: 44, maxWidth: 1080 }}>
@@ -171,7 +225,9 @@ export default function Status() {
           </span>
           <div>
             <h1 style={{ margin: 0 }}>Status Server</h1>
-            <p style={{ color: "var(--body)", margin: "2px 0 0" }}>Pemantauan realtime layanan Kamus Jawa API</p>
+            <p style={{ color: "var(--body)", margin: "2px 0 0" }}>
+              Pemantauan realtime · zona waktu <b style={{ color: "var(--ink)" }}>{clientTz}</b> (waktu lokal Anda)
+            </p>
           </div>
         </div>
       </AnimatedContent>
@@ -196,7 +252,10 @@ export default function Status() {
           </span>
           <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>{overallLabel}</div>
           <div style={{ color: "var(--body)", fontSize: "0.9rem" }}>
-            Semua sistem {overall === "operational" ? "berjalan normal" : "perlu perhatian"} — terakhir diperbarui {lastUpdate ?? "…"}
+            {activeIssues.length
+              ? `${activeIssues.length} masalah aktif — detail di bawah`
+              : "Semua sistem berjalan normal"}
+            {" · "}terakhir {lastUpdate ?? "…"} <span style={{ color: "var(--muted)" }}>({clientTz})</span>
           </div>
           <div style={{ marginLeft: "auto", display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button className="btn" onClick={() => setAuto((a) => !a)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
@@ -221,13 +280,80 @@ export default function Status() {
         </div>
       </AnimatedContent>
 
+      {/* PANEL ISSUES */}
+      <AnimatedContent delay={0.1}>
+        <div
+          className="card"
+          style={{
+            marginTop: 16, padding: "16px 20px",
+            borderColor: activeIssues.length ? "var(--err)" : "var(--hairline-strong)",
+            background: activeIssues.length ? "rgba(226,124,111,0.04)" : undefined,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: activeIssues.length ? 12 : 0 }}>
+            {activeIssues.length ? (
+              <XCircle size={18} style={{ color: "var(--err)" }} />
+            ) : (
+              <Check size={18} style={{ color: "var(--ok)" }} />
+            )}
+            <b style={{ fontFamily: "var(--sans)" }}>Issue</b>
+            <span
+              className="badge"
+              style={{
+                textTransform: "none", letterSpacing: 0, fontSize: "0.78rem",
+                color: activeIssues.length ? "var(--err)" : "var(--ok)",
+                background: activeIssues.length ? "rgba(226,124,111,0.1)" : "rgba(22,163,74,0.08)",
+                borderColor: activeIssues.length ? "rgba(226,124,111,0.3)" : "rgba(22,163,74,0.2)",
+              }}
+            >
+              {activeIssues.length ? `${activeIssues.length} aktif` : "Tidak ada masalah"}
+            </span>
+          </div>
+
+          {activeIssues.length === 0 ? (
+            <p style={{ color: "var(--body)", fontSize: "0.88rem", margin: 0 }}>
+              Tidak ada masalah terdeteksi pada server maupun API. Issue akan muncul otomatis di sini beserta detail errornya.
+            </p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {activeIssues.map((iss) => (
+                <div
+                  key={iss.id}
+                  style={{
+                    display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap",
+                    padding: "12px 14px", borderRadius: 10, border: "1px solid rgba(226,124,111,0.35)",
+                    background: "rgba(226,124,111,0.06)",
+                  }}
+                >
+                  <span style={{ width: 10, height: 10, borderRadius: 999, background: "var(--err)", flexShrink: 0, marginTop: 5 }} />
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                      <b style={{ fontFamily: "var(--sans)", fontSize: "0.95rem", color: "var(--err)" }}>{iss.title}</b>
+                      {iss.code && (
+                        <span className="badge" style={{ textTransform: "none", letterSpacing: 0, fontSize: "0.72rem", color: "var(--err)", background: "rgba(226,124,111,0.12)", borderColor: "rgba(226,124,111,0.3)" }}>
+                          {iss.code}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ color: "var(--body)", fontSize: "0.85rem", marginTop: 3 }}>{iss.detail}</div>
+                    <div style={{ color: "var(--muted)", fontSize: "0.75rem", marginTop: 4, fontFamily: "var(--mono)" }}>
+                      sejak {iss.started} · {iss.source}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </AnimatedContent>
+
       {/* Statistik */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: 14, marginTop: 18 }}>
         {[
           { label: "Uptime", value: uptime, suffix: "%", icon: ShieldCheck, color: "var(--ok)" },
           { label: "Latensi rata-rata", value: avgLatency, suffix: " ms", icon: Clock, color: "var(--text-link)" },
           { label: "Endpoint OK", value: probes.filter((p) => p.ok).length, suffix: `/${probes.length}`, icon: Check, color: "var(--ok)" },
-          { label: "Total pemeriksaan", value: totalChecks, suffix: "", icon: BarChart3, color: "var(--accent-preview)" },
+          { label: "Issue aktif", value: activeIssues.length, suffix: "", icon: AlertTriangle, color: activeIssues.length ? "var(--err)" : "var(--ok)" },
         ].map((s, i) => {
           const Icon = s.icon;
           return (
@@ -238,7 +364,7 @@ export default function Status() {
                 </span>
                 <div>
                   <div style={{ fontSize: "1.5rem", fontWeight: 700, fontFamily: "var(--sans)", lineHeight: 1.1 }}>
-                    {s.value !== 100 || s.label !== "Uptime" ? <NumberTicker value={s.value} /> : "100"}<span style={{ fontSize: "0.9rem", color: "var(--body)" }}>{s.suffix}</span>
+                    <NumberTicker value={s.value} /><span style={{ fontSize: "0.9rem", color: "var(--body)" }}>{s.suffix}</span>
                   </div>
                   <div style={{ color: "var(--body)", fontSize: "0.82rem" }}>{s.label}</div>
                 </div>
@@ -297,7 +423,7 @@ export default function Status() {
                   const hist = perEndpoint[p.path] || [];
                   const color = p.ok ? (p.latency >= 0 ? latencyColor(p.latency) : "var(--ok)") : "var(--err)";
                   return (
-                    <div key={p.path} style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", padding: "9px 12px", borderRadius: 10, background: "var(--bg-soft, var(--canvas-soft))", border: "1px solid var(--hairline)" }}>
+                    <div key={p.path} style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", padding: "9px 12px", borderRadius: 10, background: "var(--canvas-soft)", border: "1px solid var(--hairline)" }}>
                       <span style={{ width: 9, height: 9, borderRadius: 999, background: color, flexShrink: 0 }} />
                       <div style={{ minWidth: 110 }}>
                         <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{p.name}</div>
@@ -310,8 +436,11 @@ export default function Status() {
                           background: "transparent", borderColor: "color-mix(in srgb, " + color + " 40%, transparent)",
                         }}
                       >
-                        {p.ok ? (p.latency >= 0 ? `${p.latency} ms` : "OK") : "Gagal"}
+                        {p.ok ? (p.latency >= 0 ? `${p.latency} ms` : "OK") : (p.code ? `HTTP ${p.code}` : "Gagal")}
                       </span>
+                      {!p.ok && p.errMsg && (
+                        <span style={{ color: "var(--muted)", fontSize: "0.72rem", fontFamily: "var(--mono)" }}>{p.errMsg}</span>
+                      )}
                       <div style={{ marginLeft: "auto" }}>
                         <Spark data={hist} color={color} />
                       </div>
@@ -346,7 +475,11 @@ export default function Status() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
                   <span style={{ color: "var(--body)", display: "inline-flex", gap: 6, alignItems: "center" }}><Clock size={14} /> Waktu server</span>
-                  <code>{server?.serverTime ? new Date(server.serverTime).toLocaleTimeString("id-ID") : "…"}</code>
+                  <code>{server?.serverTime ? new Date(server.serverTime).toLocaleTimeString("id-ID", { hour12: false }) : "…"}</code>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                  <span style={{ color: "var(--body)", display: "inline-flex", gap: 6, alignItems: "center" }}><Clock size={14} /> Waktu lokal Anda</span>
+                  <code>{nowLocal()} · {clientTz}</code>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
                   <span style={{ color: "var(--body)", display: "inline-flex", gap: 6, alignItems: "center" }}><Database size={14} /> Entri / Turunan</span>
@@ -395,7 +528,7 @@ export default function Status() {
 
       <AnimatedContent>
         <p style={{ color: "var(--muted)", fontSize: "0.8rem", marginTop: 20, textAlign: "center" }}>
-          Status diperbarui otomatis setiap {intervalMs / 1000} detik. Latensi diukur dari browser ke server (kondisi jaringan nyata).
+          Status diperbarui otomatis setiap {intervalMs / 1000} detik · waktu ditampilkan dalam zona waktu perangkat Anda ({clientTz}) · latensi diukur dari browser ke server.
         </p>
       </AnimatedContent>
     </div>

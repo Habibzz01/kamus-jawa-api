@@ -298,19 +298,24 @@ const H: Record<string, Handler> = {
     const t0 = Date.now();
     const entries = KAMUS.entries || [];
     const sample = entries.find((e: any) => e.word === "mangan");
+    const mk = (name: string, ok: boolean, detail: string, message?: string) =>
+      ({ name, ok, detail, message: ok ? undefined : (message || detail) });
     const checks = [
-      { name: "entries", ok: entries.length > 0, detail: entries.length + " entri" },
-      { name: "search", ok: !!sample, detail: sample ? "sample 'mangan' OK" : "sample gagal" },
-      { name: "turunan", ok: (KAMUS.turunan || []).length > 0, detail: (KAMUS.turunan || []).length + " kata" },
-      { name: "proverbs", ok: ((KAMUS.proverbs || {}).paribasan || []).length > 0, detail: ((KAMUS.proverbs || {}).paribasan || []).length + " paribasan" },
-      { name: "translate", ok: (KAMUS.reverse || []).length > 0, detail: (KAMUS.reverse || []).length + " kata balik" },
-      { name: "thematic", ok: (KAMUS.thematic || []).length > 0, detail: (KAMUS.thematic || []).length + " tabel" },
+      mk("entries", entries.length > 0, entries.length + " entri", "Data entri kosong — kamus belum dimuat"),
+      mk("search", !!sample, sample ? "sample 'mangan' OK" : "entri 'mangan' tidak ditemukan", "Entri uji 'mangan' tidak ada di data"),
+      mk("turunan", (KAMUS.turunan || []).length > 0, (KAMUS.turunan || []).length + " kata", "Data kata turunan kosong"),
+      mk("proverbs", ((KAMUS.proverbs || {}).paribasan || []).length > 0, ((KAMUS.proverbs || {}).paribasan || []).length + " paribasan", "Data paribasan kosong"),
+      mk("translate", (KAMUS.reverse || []).length > 0, (KAMUS.reverse || []).length + " kata balik", "Data kamus balik kosong"),
+      mk("thematic", (KAMUS.thematic || []).length > 0, (KAMUS.thematic || []).length + " tabel", "Data tematik kosong"),
     ];
     const latencyMs = Date.now() - t0;
-    const allOk = checks.every((c) => c.ok);
+    const failed = checks.filter((c) => !c.ok);
+    const allOk = failed.length === 0;
+    const status = allOk ? "operational" : "degraded";
     return {
       data: {
-        status: allOk ? "operational" : "degraded",
+        status,
+        message: allOk ? "Semua layanan berjalan normal" : (failed.length + " pemeriksaan gagal"),
         serverTime: new Date().toISOString(),
         version: KAMUS.meta?.version || "2.0.0",
         region: process.env.VERCEL_REGION || "unknown",
@@ -318,6 +323,7 @@ const H: Record<string, Handler> = {
         latencyMs,
         counts: KAMUS.meta?.counts || {},
         checks,
+        issues: failed.map((c) => ({ check: c.name, message: c.message, detail: c.detail })),
       },
     };
   },
