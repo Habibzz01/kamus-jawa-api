@@ -95,6 +95,18 @@ export default function Status() {
   }, []);
 
   const nowLocal = () => new Date().toLocaleTimeString("id-ID", { hour12: false });
+  // Format tanggal lengkap ala Indonesia: "Senin, 10 Agustus 2026"
+  const fmtDate = (d: Date) =>
+    d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  // Format tanggal + jam: "Senin, 10 Agustus 2026 · 14:05:33"
+  const fmtDateTime = (d: Date) =>
+    `${fmtDate(d)} · ${d.toLocaleTimeString("id-ID", { hour12: false })}`;
+  // Jam berjalan realtime (update tiap detik) — tampilan profesional
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   /* Kelola issue (muncul saat gagal, hilang saat pulih) */
   function upsertIssue(src: string, title: string, detail: string, code?: string) {
@@ -249,12 +261,30 @@ export default function Status() {
               }}
             />
           </span>
-          <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>{overallLabel}</div>
-          <div style={{ color: "var(--body)", fontSize: "0.9rem" }}>
-            {activeIssues.length
-              ? `${activeIssues.length} masalah aktif — detail di bawah`
-              : "Semua sistem berjalan normal"}
-            {" · "}terakhir {lastUpdate ?? "…"} <span style={{ color: "var(--muted)" }}>({clientTz})</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>{overallLabel}</div>
+            <div style={{ color: "var(--body)", fontSize: "0.9rem" }}>
+              {activeIssues.length
+                ? `${activeIssues.length} masalah aktif — detail di bawah`
+                : "Semua sistem berjalan normal"}
+            </div>
+          </div>
+          {/* Tanggal & jam klien — menonjol */}
+          <div
+            style={{
+              display: "flex", flexDirection: "column", gap: 1, padding: "6px 14px",
+              borderRadius: 10, border: "1px solid var(--hairline-strong)", background: "var(--canvas-soft)",
+            }}
+          >
+            <div style={{ fontWeight: 700, fontFamily: "var(--sans)", fontSize: "1.02rem", color: "var(--ink)", whiteSpace: "nowrap" }}>
+              {fmtDate(now)}
+            </div>
+            <div style={{ color: "var(--body)", fontSize: "0.85rem", fontFamily: "var(--mono)" }}>
+              {now.toLocaleTimeString("id-ID", { hour12: false })} <span style={{ color: "var(--muted)" }}>· {clientTz}</span>
+            </div>
+          </div>
+          <div style={{ color: "var(--muted)", fontSize: "0.82rem" }}>
+            Pembaruan terakhir: {lastUpdate ?? "…"} <span style={{ color: "var(--muted)" }}>({clientTz})</span>
           </div>
           <div style={{ marginLeft: "auto", display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button className="btn" onClick={() => setAuto((a) => !a)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
@@ -472,13 +502,17 @@ export default function Status() {
                   <span style={{ color: "var(--body)", display: "inline-flex", gap: 6, alignItems: "center" }}><Wifi size={14} /> Versi API</span>
                   <code>{server?.version ?? "…"}</code>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                  <span style={{ color: "var(--body)", display: "inline-flex", gap: 6, alignItems: "center" }}><Clock size={14} /> Waktu server</span>
-                  <code>{server?.serverTime ? new Date(server.serverTime).toLocaleTimeString("id-ID", { hour12: false }) : "…"}</code>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                  <span style={{ color: "var(--body)", display: "inline-flex", gap: 6, alignItems: "center" }}><Clock size={14} /> Tanggal & jam server</span>
+                  <code style={{ textAlign: "right", fontSize: "0.78rem" }}>
+                    {server?.serverTime ? fmtDateTime(new Date(server.serverTime)) : "…"}
+                  </code>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                  <span style={{ color: "var(--body)", display: "inline-flex", gap: 6, alignItems: "center" }}><Clock size={14} /> Waktu lokal Anda</span>
-                  <code>{nowLocal()} · {clientTz}</code>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                  <span style={{ color: "var(--body)", display: "inline-flex", gap: 6, alignItems: "center" }}><Clock size={14} /> Tanggal & jam Anda</span>
+                  <code style={{ textAlign: "right", fontSize: "0.78rem" }}>
+                    {fmtDateTime(now)} <span style={{ color: "var(--muted)" }}>· {clientTz}</span>
+                  </code>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
                   <span style={{ color: "var(--body)", display: "inline-flex", gap: 6, alignItems: "center" }}><Database size={14} /> Entri / Turunan</span>
@@ -527,7 +561,7 @@ export default function Status() {
 
       <AnimatedContent>
         <p style={{ color: "var(--muted)", fontSize: "0.8rem", marginTop: 20, textAlign: "center" }}>
-          Status diperbarui otomatis setiap {intervalMs / 1000} detik · waktu ditampilkan dalam zona waktu perangkat Anda ({clientTz}) · latensi diukur dari browser ke server.
+          Status diperbarui otomatis setiap {intervalMs / 1000} detik · {fmtDateTime(now)} ({clientTz}) · latensi diukur dari browser ke server.
         </p>
       </AnimatedContent>
     </div>
