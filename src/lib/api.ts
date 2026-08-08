@@ -55,5 +55,5 @@ export const api = {
   suggest: (q: string, dir: "jv-id" | "id-jv" = "jv-id", limit?: number) =>
     get<any>("/api/suggest", { q, dir, limit }),
   openapi: () => get<any>("/api/openapi"),
-  status: (simulate?: boolean) => get<any>("/api/status", simulate ? { simulate: 1 } : {}),
+  status: () => get<any>("/api/status"),
 };

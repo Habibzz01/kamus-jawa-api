@@ -69,7 +69,6 @@ export default function Status() {
   const [intervalMs, setIntervalMs] = useState(3000);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [probing, setProbing] = useState(false);
-  const [simulate, setSimulate] = useState(false);
 
   const [server, setServer] = useState<any>(null);
   const [probes, setProbes] = useState<Probe[]>([]);
@@ -117,7 +116,7 @@ export default function Status() {
     // 1) snapshot server (health check internal + detail error)
     let srv: any = null;
     try {
-      const r = simulate ? await api.status(true) : await api.status();
+      const r = await api.status();
       srv = r.data;
     } catch {
       srv = null;
@@ -153,18 +152,7 @@ export default function Status() {
         }
         return probe;
       })
-    );
-    if (simulate) {
-      // Simulasi: paksa endpoint "Terjemah" gagal dengan HTTP 503 + pesan
-      const target = TARGETS.find((t) => t.name === "Terjemah");
-      if (target) {
-        const i = results.findIndex((r) => r.path === target.path);
-        if (i !== -1) {
-          results[i] = { ...results[i], ok: false, code: 503, latency: -1, errMsg: "Simulasi: HTTP 503 Service Unavailable" };
-        }
-      }
-    }
-    setProbes(results);
+    );    setProbes(results);
 
     const okN = results.filter((r) => r.ok).length;
     setOkChecks((v) => v + okN);
@@ -269,21 +257,6 @@ export default function Status() {
             {" · "}terakhir {lastUpdate ?? "…"} <span style={{ color: "var(--muted)" }}>({clientTz})</span>
           </div>
           <div style={{ marginLeft: "auto", display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button
-              className="btn"
-              onClick={() => {
-                setSimulate((v) => !v);
-                tick();
-              }}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                borderColor: simulate ? "var(--err)" : undefined,
-                color: simulate ? "var(--err)" : undefined,
-                background: simulate ? "rgba(226,124,111,0.08)" : undefined,
-              }}
-            >
-              <AlertTriangle size={15} /> {simulate ? "Hentikan Simulasi" : "Simulasi Issue"}
-            </button>
             <button className="btn" onClick={() => setAuto((a) => !a)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
               {auto ? <Pause size={15} /> : <Play size={15} />} {auto ? "Jeda" : "Lanjut"}
             </button>
